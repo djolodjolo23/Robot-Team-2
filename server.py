@@ -5,6 +5,7 @@ from robomaster import robot
 from robot import RobotManager
 app = Flask(__name__)
 
+
 server_info = {
     "name": "Server",
     "status": "running",

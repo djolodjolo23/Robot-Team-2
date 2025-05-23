@@ -14,8 +14,8 @@ class RobotManager:
             self.ep_robot.close()
             print("Robot closed.")
 
-    def play_sound(self):
+    def play_sound(self, sound):
        if self.ep_robot:
-            self.ep_robot.play_sound(1).wait_for_completed()
+            self.ep_robot.play_sound(sound).wait_for_completed()
             print("Sound played.")
 
