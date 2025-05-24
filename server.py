@@ -5,6 +5,10 @@ from robomaster import robot
 from robot import RobotManager
 app = Flask(__name__)
 
+robot = RobotManager()
+#robot.connect_to_wifi("Pixel_4585", "123456789")
+
+robot.initialize_robot()
 
 server_info = {
     "name": "Server",
@@ -13,6 +17,7 @@ server_info = {
 }
 
 commands_demo = []
+
 
 
 @app.route("/", methods=["GET"])
@@ -27,13 +32,14 @@ def status():
 def receive_command():
     pass
 
-@app.route("/sound", methods=["POST"])
+@app.route("/sound", methods=["GET"])
 def play_sound():
    # data = request.get_json()
     #sound_id = data.get("sound_id")
-    sound_id = 1
+    sound_id = 1;
     if sound_id:
         #.play_sound(sound_id).wait_for_completed()
+        robot.play_sound(sound_id).wait_for_completed()
         return jsonify({"message": f"Sound {sound_id} played successfully."}), 200
     else:
         return jsonify({"error": "No sound ID provided."}), 400
