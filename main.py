@@ -1,6 +1,5 @@
 from server import app
-from flask import Flask, jsonify, request
-import json
+
 
 if __name__ == "__main__":
     print("Starting server...")

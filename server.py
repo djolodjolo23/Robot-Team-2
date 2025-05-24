@@ -1,10 +1,13 @@
 import time
 
 from flask import Flask, request, jsonify,Response
+from flask_cors import CORS
 from robomaster import robot
 from robot import RobotManager
+import json
 from pathfinding import *
 app = Flask(__name__)
+CORS(app, resources= {r"/*": {"origins": "*"}})
 
 robot = RobotManager()
 robot.start_stream()
@@ -95,11 +98,7 @@ def stop_robot():
 
 @app.route("/seats", methods=["GET"])
 def get_seats():
-    seats = [
-        {"seat_id": 1, "status": "available"},
-        {"seat_id": 2, "status": "occupied"},
-        {"seat_id": 3, "status": "available"}
-    ]
-    return jsonify(seats), 200
+    json_string = json.dumps(map, default=lambda o: o.__dict__)
+    return json_string, 200, {'Content-Type': 'application/json'}
 
 
