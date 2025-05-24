@@ -8,9 +8,9 @@ if __name__ == "__main__":
     robot.initialize_robot()
     print("Starting server...")
 
-   app.run(host='0.0.0.0' , port=8000)
+    app.run(host='0.0.0.0' , port=8000)
 
-   print("Server started.")
+    print("Server started.")
 
 
     # play sound

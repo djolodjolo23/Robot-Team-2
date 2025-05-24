@@ -1,13 +1,12 @@
 from flask import Flask, Response
 import cv2
-import threading
 from stream.python_stream_liveview.liveview import RobotLiveview, ConnectionType  # Replace with actual import
 from PIL import Image as PImage
 import numpy as np
 
 app = Flask(__name__)
 
-robot = RobotLiveview(ConnectionType.WIFI_DIRECT)
+robot = RobotLiveview(ConnectionType.WIFI_NETWORKING)
 robot.open()
 robot.display()
 

@@ -1,8 +1,9 @@
 #!python3
-
+import os
 import sys
-sys.path.append('../decoder/output/')
-# sys.path.append('../../connection/network/')
+current_dir = os.path.dirname(os.path.abspath(__file__))
+decoder_path = os.path.abspath(os.path.join(current_dir, '..', 'decoder', 'output'))
+sys.path.append(decoder_path)
 
 import threading
 import time
@@ -26,7 +27,7 @@ class ConnectionType(enum.Enum):
 
 class RobotLiveview(object):
     WIFI_DIRECT_IP = '192.168.2.1'
-    WIFI_NETWORKING_IP = ''
+    WIFI_NETWORKING_IP = '10.143.186.203'
     USB_DIRECT_IP = '192.168.42.2'
 
     def __init__(self, connection_type):
