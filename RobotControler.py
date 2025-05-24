@@ -3,10 +3,21 @@ import time
 from robomaster import robot
 
 class RobotController:
-    def __init__(self, normal_speed=50, sprint_speed=100):
-        self.ep_robot = robot.Robot()
-        # sta or ap
-        self.ep_robot.initialize(conn_type="ap") 
+    def __init__(self,initialized_robot = 0, normal_speed=50, sprint_speed=100):
+        """_summary_
+
+        Args:
+            initialized_robot (robot.Robot(), optional): _description_. Defaults to 0 and initializes the robot.
+            normal_speed (int, optional): _description_. Defaults to 50.
+            sprint_speed (int, optional): _description_. Defaults to 100.
+        """
+        if(initialized_robot != 0):
+            self.ep_robot = initialized_robot;
+        else:
+            self.ep_robot = robot.Robot()
+            # sta or ap
+            self.ep_robot.initialize(conn_type="sta") 
+        
         self.ep_chassis = self.ep_robot.chassis
         self.normal_speed = normal_speed
         self.sprint_speed = sprint_speed
