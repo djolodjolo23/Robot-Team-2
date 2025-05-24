@@ -124,6 +124,62 @@ class Map:
         plt.tight_layout()
         plt.show()
         
+    def plot_random_tree(self, path, tree):
+        
+        start = path[0]
+        goal = path[-1]
+        fig, ax = plt.subplots(figsize=(7, 4))
+
+        # **Make room on the right for the legend
+        fig.subplots_adjust(right=0.78)
+
+        # Workspace outline
+        ax.add_patch(Rectangle((0, 0), self.width, self.height,
+                            linewidth=2, edgecolor="black", facecolor="skyblue", alpha = 0.2, label = 'office'))
+
+        # Obstacles
+        for i, o in enumerate(self.obstacles):
+            ax.add_patch(Rectangle((o.x, o.y), o.width, o.height,
+                                facecolor="red", edgecolor="red", alpha=0.6, label = 'obstacle' if i == 0 else '_nolegend_'))
+
+        # Start & goal
+        ax.scatter(*start, marker="o", s=100, label="Start", color = 'green')
+        ax.scatter(*goal,  marker="X", s=100, label="Goal", color = 'purple')
+
+        # Axes cosmetics
+        ax.set_xlim(-1, self.width + 1)
+        ax.set_ylim(-1, self.height + 1)
+        ax.set_aspect("equal", adjustable="box")
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_title("Office with Obstacles, Start, and Goal")
+
+        # **Legend outside the grid**
+        ax.legend(loc="upper left",            # anchor point inside the legend box
+                bbox_to_anchor=(1.02, 1),    # (x, y) anchor just outside axes
+                borderaxespad=0)
+
+        plt.tight_layout()
+
+        
+        # Plot RRT* tree
+        for node in tree:
+            if node.parent is not None:
+                ax.plot([node.x, node.parent.x], [node.y, node.parent.y], linewidth=0.5, color = 'grey', alpha = 0.4)
+
+        # Plot path if found
+        if path:
+            # plot the path
+            xs, ys = zip(*path)
+            ax.plot(xs, ys,
+            linestyle='-',
+            linewidth=2.5,
+            color='orange',
+            label='Path',
+            zorder=2) 
+        plt.tight_layout()
+        plt.show()
+        
 ### Pathfinding with RRT* ###
         
 class Node:

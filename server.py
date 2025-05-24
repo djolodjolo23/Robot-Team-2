@@ -2,26 +2,19 @@ import time
 
 from flask import Flask, request, jsonify,Response
 from flask_cors import CORS
-from matplotlib.font_manager import json_dump
 from robomaster import robot
+from localization import distance_scan_script, plot
+from localization import monte_carlo
+from pathfinding import Map, Obstacle
 from robot import RobotManager
 import json
 from pathfinding import *
+
 app = Flask(__name__)
 CORS(app, resources= {r"/*": {"origins": "*"}})
 
 robot = RobotManager()
 robot.start_stream()
-
-o1 = Obstacle(10, 10, 5, 4)
-o2 = Obstacle(20, 10, 5, 4)
-
-seat0 = Seat(0, 1, 2)
-seat1 = Seat(1, 1, 1)
-
-map = Map(30, 25, [o1, o2], [seat0, seat1])
-
-graphMap = GraphMap(map)
 
 
 server_info = {
@@ -48,22 +41,22 @@ def receive_command():
     # goal_id = data[]
     # seat = map.seats[goal_id]
 
-    seat = seat0
-    seat_coords = (seat.x, seat.y)
+    seat0 = robot.get_seats()[0]
+    seat_coords = (seat0.x, seat0.y)
 
     start = (1,1)
 
-    path = graphMap.path_from_to(start, seat_coords)
+    #path = graphMap.path_from_to(start, seat_coords)
 
-    path_instructions = graphMap.instructions_from_path(path)
+    #path_instructions = graphMap.instructions_from_path(path)
 
-    map.plot_path(path)
-
+    #map.plot_path(path)
+    path_instructions = [(1, 1), (1, -1), (1, 0), (0, -1)]
     robot.resolve_path(path_instructions)
 
     print("Path instructions:", path_instructions)
 
-    print("Path", path)
+    #print("Path", path)
 
     #json_dump = json.dumps(path_instructions, indent=4)
 
