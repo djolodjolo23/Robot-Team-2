@@ -51,12 +51,12 @@ class Map:
         fig, ax = plt.subplots(figsize=(7, 4))
         # Workspace outline
         ax.add_patch(Rectangle((0, 0), self.width, self.height,
-                            linewidth=2, edgecolor="black", facecolor="skyblue"))
+                            linewidth=2, edgecolor="black", facecolor="skyblue", alpha = 0.2, label = 'office'))
 
         # Obstacles
-        for o in self.obstacles:
+        for i, o in enumerate(self.obstacles):
             ax.add_patch(Rectangle((o.x, o.y), o.width, o.height,
-                                facecolor="red", edgecolor="red", alpha=0.6))
+                                facecolor="red", edgecolor="red", alpha=0.6, label = 'obstacle' if i == 0 else '_nolegend_'))
 
         # Axes cosmetics
         ax.set_xlim(-1, self.width + 1)
@@ -65,6 +65,7 @@ class Map:
         ax.set_xlabel("x")
         ax.set_ylabel("y")
         ax.set_title("Workspace with Obstacles, Start, and Goal")
+        plt.legend()
     
     
 class GraphMap:
@@ -151,7 +152,8 @@ class GraphMap:
             ax.add_patch(Rectangle((o.x, o.y), o.width, o.height,
                                 facecolor="red", edgecolor="red", alpha=0.6, label = 'obstacle' if i == 0 else '_nolegend_'))
 
-        xs, ys = zip(*path)           # unpack [(x1,y1), (x2,y2), …]
+        # plot the path
+        xs, ys = zip(*path)
         ax.plot(xs, ys,
         linestyle='-',
         linewidth=2.5,
