@@ -3,16 +3,17 @@ import time
 from robomaster import robot
 
 class RobotController:
-    def __init__(self,initialized_robot = 0, normal_speed=50, sprint_speed=100):
-        """_summary_
+    def __init__(self, initialized_robot=0, normal_speed=50, sprint_speed=100):
+        """Initialize the RobotController.
 
         Args:
-            initialized_robot (robot.Robot(), optional): _description_. Defaults to 0 and initializes the robot.
-            normal_speed (int, optional): _description_. Defaults to 50.
-            sprint_speed (int, optional): _description_. Defaults to 100.
+            initialized_robot (robot.Robot, optional): An already initialized robot instance. 
+                Defaults to 0, which initializes a new robot.
+            normal_speed (int, optional): Default speed for normal movement. Defaults to 50.
+            sprint_speed (int, optional): Speed for sprint movement. Defaults to 100.
         """
-        if(initialized_robot != 0):
-            self.ep_robot = initialized_robot;
+        if initialized_robot != 0:
+            self.ep_robot = initialized_robot
         else:
             self.ep_robot = robot.Robot()
             # sta or ap
@@ -27,9 +28,12 @@ class RobotController:
 
     def set_speed(self, speed_type):
         """Set the robot's speed.
-        options: int in range (0, 100>
-        string: "normal" - set speed to 50 (quite slow)
-        string: "sprint" - set speed to 100 (max speed)
+
+        Args:
+            speed_type (int or str): 
+                - int: A value in the range (0, 100].
+                - "normal": Sets speed to the default normal speed (50).
+                - "sprint": Sets speed to the default sprint speed (100).
         """
         if isinstance(speed_type, int) and 0 < speed_type <= 100:
             self.current_speed = speed_type
@@ -39,15 +43,17 @@ class RobotController:
             self.current_speed = self.sprint_speed
 
     def move(self, direction):
-        """Move the robot in a specified direction.`
-        options:
-        forward
-        forward_left
-        forward_right
-        left
-        right
-        rotate_left
-        rotate_right
+        """Move the robot in a specified direction.
+
+        Args:
+            direction (str): Direction to move. Options are:
+                - "forward"
+                - "forward_left"
+                - "forward_right"
+                - "left"
+                - "right"
+                - "rotate_left"
+                - "rotate_right"
         """
         if direction == "forward":
             self.ep_chassis.drive_wheels(w1=self.current_speed, w2=self.current_speed, w3=self.current_speed, w4=self.current_speed)
