@@ -13,17 +13,13 @@ class Obstacle:
         self.height = height
         
     def is_inside(self, x, y):
-        """ Check if the point (x, y) is inside of the obstacle
-
-        Args:
-            x (_type_): _description_
-            y (_type_): _description_
-        """
+        """ Check if the point (x, y) is inside of the obstacle """
         
         return x >= self.x and x <= self.x + self.width and y >= self.y and y <= self.height
     
 class Seat:
-    def __init__(self, id, x, y):
+    """ Each seat is defined by a unique ID and its coordinates """
+    def __init__(self, id, x: int, y: int):
         self.id = id
         self.x = x
         self.y = y
@@ -49,6 +45,26 @@ class Map:
     
     def in_map(self, x, y):
         return x >= 0 and x <= self.width - 1 and y >= 0 and y <= self.height - 1
+    
+    def plot_map(self):
+        
+        fig, ax = plt.subplots(figsize=(7, 4))
+        # Workspace outline
+        ax.add_patch(Rectangle((0, 0), self.width, self.height,
+                            linewidth=2, edgecolor="black", facecolor="skyblue"))
+
+        # Obstacles
+        for o in self.obstacles:
+            ax.add_patch(Rectangle((o.x, o.y), o.width, o.height,
+                                facecolor="red", edgecolor="red", alpha=0.6))
+
+        # Axes cosmetics
+        ax.set_xlim(0, self.width)
+        ax.set_ylim(0, self.height)
+        ax.set_aspect("equal", adjustable="box")
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_title("Workspace with Obstacles, Start, and Goal")
     
     
 class GraphMap:
@@ -127,11 +143,11 @@ class GraphMap:
 
         # Workspace outline
         ax.add_patch(Rectangle((0, 0), self.map.width, self.map.height,
-                            linewidth=2, edgecolor="black", facecolor="none"))
+                            linewidth=2, edgecolor="black", facecolor="skyblue", alpha = 0.2, label = 'office'))
 
         # Obstacles
-        for (x1, y1), (x2, y2) in self.map.obstacles:
-            ax.add_patch(Rectangle((x1, y1), x2 - x1, y2 - y1,
+        for o in self.map.obstacles:
+            ax.add_patch(Rectangle((o.x, o.y), o.width, o.height,
                                 facecolor="red", edgecolor="red", alpha=0.6))
 
         # Start & goal
@@ -139,12 +155,12 @@ class GraphMap:
         ax.scatter(*goal,  marker="X", s=100, label="Goal", color = 'purple')
 
         # Axes cosmetics
-        ax.set_xlim(0, self.map.width)
-        ax.set_ylim(0, self.map.height)
+        ax.set_xlim(-1, self.map.width + 1)
+        ax.set_ylim(-1, self.map.height + 1)
         ax.set_aspect("equal", adjustable="box")
         ax.set_xlabel("x")
         ax.set_ylabel("y")
-        ax.set_title("Workspace with Obstacles, Start, and Goal")
+        ax.set_title("Office with Obstacles, Start, and Goal")
 
         # **Legend outside the grid**
         ax.legend(loc="upper left",            # anchor point inside the legend box
