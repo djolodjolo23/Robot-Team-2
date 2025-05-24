@@ -86,17 +86,23 @@ def video_feed():
 @app.route('/random_dance')
 def r_dance():
     robot.crazy_random_dance()
-    return jsonify({"message": "Robot moved left"}), 200
+    return jsonify({"message": "Robot dances "}), 200
 @app.route('/disco_dance')
 def d_dance():
     robot.disco_dance()
-    return jsonify({"message": "Robot moved left"}), 200
+    return jsonify({"message": "Robot dances"}), 200
 
 @app.route('/wackel_dance')
 def w_dance():
     robot.wackel_dance()
-    return jsonify({"message": "Robot moved left"}), 200
+    return jsonify({"message": "Robot dances"}), 200
 
+@app.route('/stop_audio')
+def stop_audio():
+    #might not work
+    robot.stop_audio()
+    robot.stop()
+    return jsonify({"message": "Robot stops music"}), 200
 @app.route('/right')
 def move_right():
     robot.move('right')
