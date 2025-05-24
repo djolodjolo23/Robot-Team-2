@@ -59,6 +59,42 @@ def video_feed():
 
 
 
+# MOVEMENT
+@app.route('/left')
+def move_left():
+    robot.move('left')
+    return jsonify({"message": "Robot moved left"}), 200
+
+@app.route('/right')
+def move_right():
+    robot.move('right')
+    return jsonify({"message": "Robot moved right"}), 200
+
+@app.route('/forward')
+def move_forward():
+    robot.move('forward')
+    return jsonify({"message": "Robot moved forward"}), 200
+
+@app.route('/backward')
+def move_backward():
+    robot.move('backward')
+    return jsonify({"message": "Robot moved backward"}), 200
+
+@app.route('/rotate_left')
+def rotate_left():
+    robot.move('rotate_left')
+    return jsonify({"message": "Robot rotated left"}), 200
+
+@app.route('/rotate_right')
+def rotate_right():
+    robot.move('rotate_right')
+    return jsonify({"message": "Robot rotated right"}), 200
+
+@app.route('/stop')
+def stop_robot():
+    robot.stop()
+    return jsonify({"message": "Robot stopped"}), 200
+
 @app.route("/seats", methods=["GET"])
 def get_seats():
     seats = [
@@ -67,3 +103,5 @@ def get_seats():
         {"seat_id": 3, "status": "available"}
     ]
     return jsonify(seats), 200
+
+
