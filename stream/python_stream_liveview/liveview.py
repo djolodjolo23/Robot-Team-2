@@ -5,17 +5,17 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 print(f"[DEBUG] Current script directory (current_dir): {current_dir}")
 
 decoder_path = os.path.abspath(os.path.join(current_dir, '..', 'decoder', 'output'))
-print(f"[DEBUG] Decoder path (Option 1 - Structure A): {decoder_path}")
-print(f"[DEBUG] Using decoder path: {decoder_path}")
-print(f"[DEBUG] Does this path exist? {os.path.exists(decoder_path)}")
-if os.path.exists(decoder_path):
-    print(f"[DEBUG] Contents of decoder path: {os.listdir(decoder_path)}")
-else:
-    print(f"[ERROR] The calculated decoder path does NOT exist. Please verify your directory structure.")
+# print(f"[DEBUG] Decoder path (Option 1 - Structure A): {decoder_path}")
+# print(f"[DEBUG] Using decoder path: {decoder_path}")
+# print(f"[DEBUG] Does this path exist? {os.path.exists(decoder_path)}")
+# if os.path.exists(decoder_path):
+#     print(f"[DEBUG] Contents of decoder path: {os.listdir(decoder_path)}")
+# else:
+#     print(f"[ERROR] The calculated decoder path does NOT exist. Please verify your directory structure.")
 
-# Add the chosen path to sys.path
+# # Add the chosen path to sys.path
 sys.path.append(decoder_path)
-print(f"[DEBUG] sys.path now includes: {decoder_path}")
+#print(f"[DEBUG] sys.path now includes: {decoder_path}")
 # --- End of Path Setup ---
 
 import threading
@@ -40,7 +40,7 @@ class ConnectionType(enum.Enum):
 
 class RobotLiveview(object):
     WIFI_DIRECT_IP = '192.168.2.1'
-    WIFI_NETWORKING_IP = '10.143.186.85'
+    WIFI_NETWORKING_IP = '10.143.186.203'
     USB_DIRECT_IP = '192.168.42.2'
 
     def __init__(self, connection_type):

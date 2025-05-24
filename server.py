@@ -33,7 +33,7 @@ def receive_command():
 def play_sound():
    # data = request.get_json()
     #sound_id = data.get("sound_id")
-    sound_id = 1;
+    sound_id = 1
     if sound_id:
         #.play_sound(sound_id).wait_for_completed()
         robot.play_sound(sound_id).wait_for_completed()
@@ -47,9 +47,7 @@ def video_feed():
     return Response(generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/')
-def index():
-    return '<h1>Robot Camera Feed</h1><img src="/video_feed" width="640"/>'
+
 
 @app.route("/seats", methods=["GET"])
 def get_seats():
