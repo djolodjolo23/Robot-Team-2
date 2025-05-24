@@ -76,7 +76,7 @@ class RobotManager:
 
     def play_audio(self, audio_file):
         if self.ep_robot:
-            self.ep_robot.play_audio(audio_file).wait_for_completed()
+            self.ep_robot.play_audio(audio_file)
             print(f"Audio {audio_file} played.")
 
     def resolve_path_crabwalk(self, path_instructions):
@@ -390,16 +390,67 @@ class RobotManager:
     #             time.sleep(0.1)
     #     finally:
     #         self.shutdown()
+    def stop_audio(self):
+        """Stop the currently playing audio."""
+        if self.ep_robot:
+            self.ep_robot.stop_audio()  # Replace with the actual method from your SDK
+            print("Audio stopped.")
+            
+            
+            
+    def wackel_dance(self):
+        if not self.ep_robot:
+            print("Robot not initialized.")
+            return
 
-    def nice_dance(self):
-        """Make the robot perform a dynamic and interesting dance routine."""
+        self.speed_buff = self.current_speed
+        self.set_speed(100)
+        self.play_audio("wackelkontakt.wav")
+        
+        wackeltime = 0.05
+        self.move("rotate_left")
+        self.move_arm("up", 50)
+        time.sleep(wackeltime)
+        
+
+        self.move("rotate_right")
+        self.move_arm("down", 50)
+        time.sleep(wackeltime)
+
+        self.move("rotate_left")
+        self.move_arm("up", 50)
+        time.sleep(wackeltime)
+        
+
+        self.move("rotate_right")
+        self.move_arm("down", 50)
+        time.sleep(wackeltime*50)
+        
+        self.move("rotate_left")
+        self.move_arm("up", 50)
+        time.sleep(wackeltime)
+
+        self.move("rotate_right")
+        self.move_arm("down", 50)
+        time.sleep(wackeltime)
+        
+        self.move("rotate_left")
+        self.move_arm("down", 50)
+        time.sleep(wackeltime*5)
+        # self.stop_audio()
+        self.set_speed(self.speed_buff)
+        self.stop()
+        print("Dance completed!")
+    
+            
+    def disco_dance(self):
         if not self.ep_robot:
             print("Robot not initialized.")
             return
 
         self.speed_buff = self.current_speed
         self.set_speed(70)
-
+        self.play_audio("disco.wav")
         try:
             # Dance sequence
             for _ in range(3):  # Repeat the sequence 3 times
@@ -445,6 +496,7 @@ class RobotManager:
 
         finally:
             # Reset speed and stop the robot
+            self.stop_audio()
             self.set_speed(self.speed_buff)
             self.stop()
             print("Dance completed!")
