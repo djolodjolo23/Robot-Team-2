@@ -27,6 +27,8 @@ class OccupationMap:
     def __init__(self, boundary_points=None, obstacles=None):
         # Outer wall (rectangle: xmin, ymin, xmax, ymax)
         self.boundary = Polygon(boundary_points) if boundary_points else Polygon([(0, 0), (100, 0), (100, 100), (0, 100)])
+        self.width = self.boundary.bounds[2] - self.boundary.bounds[0]
+        self.heigth = self.boundary.bounds[3] - self.boundary.bounds[1]
         
         # List of obstacle polygons
         self.obstacles = [Polygon(obs) for obs in obstacles] if obstacles else []
@@ -79,8 +81,8 @@ class OccupationMap:
             ax.fill(x, y, color='gray', alpha=0.7, label='Obstacle' if i == 0 else "")
 
         ax.set_aspect('equal')
-        ax.set_xlim(-1, self.boundary.bounds[2] + 1)
-        ax.set_ylim(-1, self.boundary.bounds[3] + 1)
+        ax.set_xlim(-30, self.boundary.bounds[2] + 30)
+        ax.set_ylim(-30, self.boundary.bounds[3] + 30)
         ax.grid(True)
         ax.set_title("Occupation Map")
         ax.legend()
@@ -116,8 +118,8 @@ class MonteCarloLocalization:
         for i in range(self.num_particles):
             particle = Particle()
             particle.rotation = math.pi * random.uniform(0, 2)
-            particle.x = random.uniform(0, 100)
-            particle.y = random.uniform(0, 100)
+            particle.x = random.uniform(0, self.occupation_map.width)
+            particle.y = random.uniform(0, self.occupation_map.heigth)
             self.particles.append(particle)
     
     def max_particle(self):
@@ -171,7 +173,7 @@ class MonteCarloLocalization:
         self.particles = new_particles
         
 
-    def update_step(self, x,y,rot, scan_data, perturbation_parameters=(0.1, 1, 1)):
+    def update_step(self, x,y,rot, scan_data, perturbation_parameters=(0.1, 0.5, 0.5)):
         self.update_particles(x, y, rot)
         self.perturbate_particles(*perturbation_parameters)
         self.update_particle_probabilities(scan_data)

@@ -6,7 +6,7 @@ def sub_data_handler(sub_info):
     
 
 #turns arround 360 degrees and collects distance data at frequency of 5Hz
-def do_rotation_scan(ep_robot, frequency=50):
+def do_rotation_scan(ep_robot, frequency=10):
     global rotation_results
     rotation_results = []
     
