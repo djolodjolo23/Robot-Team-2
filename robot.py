@@ -27,7 +27,7 @@ class RobotManager:
         self.ep_robot = robot.Robot()
         # self.ep_robot.initialize(conn_type="sta", sn="3JKCK7E0030BFN")
         #self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
-        self.ep_robot.initialize(conn_type="ap", sn="3JKCK7E0030BFN")
+        self.ep_robot.initialize(conn_type="ap", sn="3JKCK6U0030AT6")
         # self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
 
         seat0 = Seat(0, 1, 2)
@@ -48,11 +48,11 @@ class RobotManager:
         self.running = True
         self.latest_frame = None
         self.current_angle = 0
-        #self.capture_thread = threading.Thread(target=self._capture_frames)
-        #self.capture_thread.daemon = True
+        self.capture_thread = threading.Thread(target=self._capture_frames)
+        self.capture_thread.daemon = True
         self.lock = threading.Lock()
-        #self.start_stream()
-       # self.capture_thread.start()
+        self.start_stream()
+        self.capture_thread.start()
 
         print("Robot initialized.")
 
@@ -284,7 +284,7 @@ class RobotManager:
     def stop(self):
         """Stop the robot."""
         self.ep_chassis.drive_wheels(w1=0, w2=0, w3=0, w4=0)
-        
+
     #ARM MOVEMENT
 
     def move_arm(self, direction, distance):
@@ -344,9 +344,11 @@ class RobotManager:
             with self.lock:
                 frame = self.latest_frame
             if frame is None:
+                time.sleep(0.1)
                 continue
             ret, buffer = cv2.imencode('.jpg', frame)
             if not ret:
+                time.sleep(0.1)
                 continue
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
@@ -395,9 +397,9 @@ class RobotManager:
         if self.ep_robot:
             self.ep_robot.stop_audio()  # Replace with the actual method from your SDK
             print("Audio stopped.")
-            
-            
-            
+
+
+
     def wackel_dance(self):
         if not self.ep_robot:
             print("Robot not initialized.")
@@ -406,12 +408,12 @@ class RobotManager:
         self.speed_buff = self.current_speed
         self.set_speed(100)
         self.play_audio("wackelkontakt.wav")
-        
+
         wackeltime = 0.05
         self.move("rotate_left")
         self.move_arm("up", 50)
         time.sleep(wackeltime)
-        
+
 
         self.move("rotate_right")
         self.move_arm("down", 50)
@@ -420,12 +422,12 @@ class RobotManager:
         self.move("rotate_left")
         self.move_arm("up", 50)
         time.sleep(wackeltime)
-        
+
 
         self.move("rotate_right")
         self.move_arm("down", 50)
         time.sleep(wackeltime*50)
-        
+
         self.move("rotate_left")
         self.move_arm("up", 50)
         time.sleep(wackeltime)
@@ -433,7 +435,7 @@ class RobotManager:
         self.move("rotate_right")
         self.move_arm("down", 50)
         time.sleep(wackeltime)
-        
+
         self.move("rotate_left")
         self.move_arm("up", 50)
         time.sleep(wackeltime*5)
@@ -441,8 +443,8 @@ class RobotManager:
         self.set_speed(self.speed_buff)
         self.stop()
         print("Dance completed!")
-    
-            
+
+
     def disco_dance(self):
         if not self.ep_robot:
             print("Robot not initialized.")
