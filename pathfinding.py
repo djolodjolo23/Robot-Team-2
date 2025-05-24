@@ -169,8 +169,14 @@ class Map:
 
         # Plot path if found
         if path:
+            # plot the path
             xs, ys = zip(*path)
-            ax.plot(xs, ys, linewidth=3)
+            ax.plot(xs, ys,
+            linestyle='-',
+            linewidth=2.5,
+            color='orange',
+            label='Path',
+            zorder=2) 
         plt.tight_layout()
         plt.show()
         
