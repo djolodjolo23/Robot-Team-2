@@ -6,8 +6,6 @@ from robot import RobotManager
 app = Flask(__name__)
 
 robot = RobotManager()
-#robot.connect_to_wifi("Pixel_4585", "123456789")
-
 robot.initialize_robot()
 
 server_info = {
@@ -17,8 +15,6 @@ server_info = {
 }
 
 commands_demo = []
-
-
 
 @app.route("/", methods=["GET"])
 def home():
@@ -32,7 +28,7 @@ def status():
 def receive_command():
     pass
 
-@app.route("/sound", methods=["GET"])
+@app.route("/sound", methods=["POST"])
 def play_sound():
    # data = request.get_json()
     #sound_id = data.get("sound_id")
@@ -43,3 +39,13 @@ def play_sound():
         return jsonify({"message": f"Sound {sound_id} played successfully."}), 200
     else:
         return jsonify({"error": "No sound ID provided."}), 400
+
+
+@app.route("/seats", methods=["GET"])
+def get_seats():
+    seats = [
+        {"seat_id": 1, "status": "available"},
+        {"seat_id": 2, "status": "occupied"},
+        {"seat_id": 3, "status": "available"}
+    ]
+    return jsonify(seats), 200
