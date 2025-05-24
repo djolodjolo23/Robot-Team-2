@@ -23,7 +23,7 @@ class Localizer:
         self.last_scan = scan
         self.mc.update_step(dx, dy, drot, scan, self.perturbation_param)
         for i in range(self.update_steps):
-            self.mc.update_step(0, 0, 0, scan)
+            self.mc.update_step(0, 0, 0, scan, self.perturbation_param)
         return self.mc.max_particle()    
     
         

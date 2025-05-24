@@ -59,7 +59,7 @@ def update(frame):
     dx = 0.0
     dy = 0
     drot = 0
-    localization.update_step(dx, dy, drot, scan)
+    localization.update_step(dx, dy, drot, scan, (0,0,0,True))
     particles = localization.particles
     x = [p.x for p in particles]
     y = [p.y for p in particles]
