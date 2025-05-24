@@ -79,8 +79,8 @@ class OccupationMap:
             ax.fill(x, y, color='gray', alpha=0.7, label='Obstacle' if i == 0 else "")
 
         ax.set_aspect('equal')
-        ax.set_xlim(-1, 101)
-        ax.set_ylim(-1, 101)
+        ax.set_xlim(-1, self.boundary.bounds[2] + 1)
+        ax.set_ylim(-1, self.boundary.bounds[3] + 1)
         ax.grid(True)
         ax.set_title("Occupation Map")
         ax.legend()
@@ -119,7 +119,11 @@ class MonteCarloLocalization:
             particle.x = random.uniform(0, 100)
             particle.y = random.uniform(0, 100)
             self.particles.append(particle)
-            
+    
+    def max_particle(self):
+        max_prob_particle = max(self.particles, key=lambda p: p.probability)
+        return max_prob_particle.x, max_prob_particle.y, max_prob_particle.rotation
+     
     def update_particles(self, x, y, rotation):
         for particle in self.particles:
             particle.x += x
@@ -166,7 +170,7 @@ class MonteCarloLocalization:
             new_particles.append(self.particles[index].copy())
         self.particles = new_particles
         
-        
+
     def update_step(self, x,y,rot, scan_data, perturbation_parameters=(0.1, 1, 1)):
         self.update_particles(x, y, rot)
         self.perturbate_particles(*perturbation_parameters)
