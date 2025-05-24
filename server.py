@@ -2,6 +2,7 @@ import time
 
 from flask import Flask, request, jsonify,Response
 from flask_cors import CORS
+from matplotlib.font_manager import json_dump
 from robomaster import robot
 from robot import RobotManager
 import json
@@ -11,13 +12,15 @@ CORS(app, resources= {r"/*": {"origins": "*"}})
 
 robot = RobotManager()
 robot.start_stream()
-obstacle0 = Obstacle(10, 10, 20, 20)
-obstacle1= Obstacle(40, 40, 20, 20)
 
-seat0 = Seat(0, 90, 90)
+obstacle0 = Obstacle(2, 2, 2, 2)
+obstacle1= Obstacle(4, 4, 2, 2)
+
+seat0 = Seat(0, 9, 9)
 seat1 = Seat(1, 1, 1)
-map = Map(100, 100, [obstacle0,  obstacle1], [seat0, seat1])
+map = Map(10, 10, [obstacle0, obstacle1], [seat0, seat1])
 
+graphMap = GraphMap(map)
 
 
 server_info = {
@@ -36,9 +39,30 @@ def home():
 def status():
     return jsonify(server_info), 200
 
-@app.route("/send", methods=["POST"])
+@app.route("/send", methods=["GET"])
 def receive_command():
-    pass
+    # data = request.get_json()
+    # if not data or 'command' not in data:
+    #     return jsonify({"error": "Invalid command format."}), 400
+    #goal_id = data[goal]
+    #seat = map.seats[goal_id]
+
+    seat = seat0
+    seat_coords = (seat.x, seat.y)
+
+    start = (1,1)
+
+    path = graphMap.path_from_to(start, seat_coords)
+
+    path_instructions = graphMap.instructions_from_path(path)
+
+    print("Path instructions:", path_instructions)
+
+    print("Path", path)
+
+    json_dump = json.dumps(path_instructions, indent=4)
+
+    return json_dump
 
 @app.route("/sound", methods=["POST"])
 def play_sound():
@@ -96,17 +120,16 @@ def stop_robot():
     robot.stop()
     return jsonify({"message": "Robot stopped"}), 200
 
-@app.route('/rotate_right_given_angle')
-def rotate_right():
-    robot.move('rotate_right')
-    return jsonify({"message": "Robot rotated right"}), 200
+# @app.route('/rotate_right_given_angle')
+# def rotate_right():
+#     robot.move('rotate_right')
+#     return jsonify({"message": "Robot rotated right"}), 200
 
 
 
 @app.route("/seats", methods=["GET"])
 def get_seats():
-    json_string = json.dumps(map, default=lambda o: o.__dict__)
-    return json_string, 200, {'Content-Type': 'application/json'}
+    return jsonify(map.to_dict())
 
 
 @app.route('/move_distance', methods=['POST'])
