@@ -16,7 +16,7 @@ robot.start_stream()
 o1 = Obstacle(10, 10, 5, 4)
 o2 = Obstacle(20, 10, 5, 4)
 
-seat0 = Seat(0, 25, 20)
+seat0 = Seat(0, 1, 2)
 seat1 = Seat(1, 1, 1)
 
 map = Map(30, 25, [o1, o2], [seat0, seat1])
@@ -57,7 +57,7 @@ def receive_command():
 
     path_instructions = graphMap.instructions_from_path(path)
 
-    map.plot_path()
+    map.plot_path(path)
 
     robot.resolve_path(path_instructions)
 
@@ -125,6 +125,10 @@ def stop_robot():
     robot.stop()
     return jsonify({"message": "Robot stopped"}), 200
 
+@app.route('/spin')
+def spin_robot():
+    robot.rotate_angle(720)
+    return jsonify({"message": "Robot stopped"}), 200
 # @app.route('/rotate_right_given_angle')
 # def rotate_right():
 #     robot.move('rotate_right')
