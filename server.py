@@ -16,12 +16,6 @@ CORS(app, resources= {r"/*": {"origins": "*"}})
 robot = RobotManager()
 robot.start_stream()
 
-# o1 = Obstacle(10, 10, 5, 4)
-# o2 = Obstacle(20, 10, 5, 4)
-#
-seat0 = Seat(0, 1, 2)
-# seat1 = Seat(1, 1, 1)
-
 
 server_info = {
     "name": "Server",
@@ -47,8 +41,8 @@ def receive_command():
     # goal_id = data[]
     # seat = map.seats[goal_id]
 
-    seat = seat0
-    seat_coords = (seat.x, seat.y)
+    seat0 = robot.get_seats()[0]
+    seat_coords = (seat0.x, seat0.y)
 
     start = (1,1)
 

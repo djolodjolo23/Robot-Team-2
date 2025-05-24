@@ -7,16 +7,35 @@ from robomaster import conn
 from MyQR import myqr
 from PIL import Image
 import cv2
+from localization import distance_scan_script, plot
+from localization import monte_carlo
+from pathfinding import *
+import localizer
 QRCODE_NAME = "qrcode.png"
 
 
 class RobotManager:
     def __init__(self,  normal_speed=50, sprint_speed=100):
 
+
+        #fig, ax = plt.subplots(figsize=(6, 6))
+        #plot.cartesian_plot_scan_results(10, 10, 0, scan, ax=ax, color='green')
+        #occ.plot(ax)
+
+
         self.ep_robot = robot.Robot()
         #self.ep_robot.initialize(conn_type="ap", sn="3JKCK7E0030BFN")
         self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
 
+        seat0 = Seat(0, 1, 2)
+        # seat1 = Seat(1, 1, 1)
+
+        o1 = Obstacle(10, 0, 4, 4)
+        map = Map(22, 14, [o1], [])
+
+        graphMap = GraphMap(map)
+
+        self.map = map
         self.ep_camera = self.ep_robot.camera
         self.ep_chassis = self.ep_robot.chassis
         self.normal_speed = normal_speed
@@ -25,6 +44,10 @@ class RobotManager:
         self.speed_buff = self.current_speed
         self.current_angle = 0
         self.running = False
+
+        #self.localizer = localizer.Localizer(self.ep_robot, map, num_particles=100, movement_perturbation=0.1, rotation_perturbation=0.1, perturbation_uniform=True, update_steps=0)
+
+
         print("Robot initialized.")
 
 
@@ -32,6 +55,13 @@ class RobotManager:
         if self.ep_robot:
             self.ep_robot.close()
             print("Robot closed.")
+
+
+    def get_map(self):
+        return self.map
+
+    def get_seats(self):
+        return self.map.seats
 
     def play_sound(self, sound):
         if self.ep_robot:
