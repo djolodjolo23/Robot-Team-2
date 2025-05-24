@@ -13,12 +13,13 @@ CORS(app, resources= {r"/*": {"origins": "*"}})
 robot = RobotManager()
 robot.start_stream()
 
-obstacle0 = Obstacle(3, 0, 5, 5)
-obstacle1= Obstacle(8, 5, 6, 6)
+o1 = Obstacle(10, 10, 5, 4)
+o2 = Obstacle(20, 10, 5, 4)
 
-seat0 = Seat(0, 23, 14)
+seat0 = Seat(0, 25, 20)
 seat1 = Seat(1, 1, 1)
-map = Map(24, 20, [obstacle0, obstacle1], [seat0, seat1])
+
+map = Map(30, 25, [o1, o2], [seat0, seat1])
 
 graphMap = GraphMap(map)
 
@@ -44,8 +45,8 @@ def receive_command():
     # data = request.get_json()
     # if not data or 'command' not in data:
     #     return jsonify({"error": "Invalid command format."}), 400
-    #goal_id = data[goal]
-    #seat = map.seats[goal_id]
+    # goal_id = data[]
+    # seat = map.seats[goal_id]
 
     seat = seat0
     seat_coords = (seat.x, seat.y)
@@ -55,6 +56,8 @@ def receive_command():
     path = graphMap.path_from_to(start, seat_coords)
 
     path_instructions = graphMap.instructions_from_path(path)
+
+    map.plot_path()
 
     robot.resolve_path(path_instructions)
 

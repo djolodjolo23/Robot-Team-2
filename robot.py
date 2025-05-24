@@ -13,8 +13,8 @@ class RobotManager:
     def __init__(self,  normal_speed=50, sprint_speed=100):
 
         self.ep_robot = robot.Robot()
-        self.ep_robot.initialize(conn_type="ap", sn="3JKCK7E0030BFN")
-        #self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
+        #self.ep_robot.initialize(conn_type="ap", sn="3JKCK7E0030BFN")
+        self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
 
         self.ep_camera = self.ep_robot.camera
         self.ep_chassis = self.ep_robot.chassis
