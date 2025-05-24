@@ -1,8 +1,9 @@
 import time
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from robomaster import robot
 from robot import RobotManager
+from camera_stream import generate_frames
 app = Flask(__name__)
 
 robot = RobotManager()
@@ -40,6 +41,15 @@ def play_sound():
     else:
         return jsonify({"error": "No sound ID provided."}), 400
 
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/')
+def index():
+    return '<h1>Robot Camera Feed</h1><img src="/video_feed" width="640"/>'
 
 @app.route("/seats", methods=["GET"])
 def get_seats():

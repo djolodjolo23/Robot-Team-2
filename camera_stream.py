@@ -1,10 +1,9 @@
 from flask import Flask, Response
 import cv2
-from stream.python_stream_liveview.liveview import RobotLiveview, ConnectionType  # Replace with actual import
+from stream.python_stream_liveview.liveview import RobotLiveview, ConnectionType
 from PIL import Image as PImage
 import numpy as np
 
-app = Flask(__name__)
 
 robot = RobotLiveview(ConnectionType.WIFI_NETWORKING)
 robot.open()
@@ -30,14 +29,4 @@ def generate_frames():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/')
-def index():
-    return '<h1>Robot Camera Feed</h1><img src="/video_feed" width="640"/>'
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)

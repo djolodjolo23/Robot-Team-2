@@ -1,7 +1,4 @@
 from server import app
-from robot import RobotManager
-import time
-
 
 if __name__ == "__main__":
     print("Starting server...")
