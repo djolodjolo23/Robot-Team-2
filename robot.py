@@ -26,8 +26,8 @@ class RobotManager:
 
         self.ep_robot = robot.Robot()
         #self.ep_robot.initialize(conn_type="ap", sn="3JKCK7E0030BFN")
-        self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
-
+        # self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
+        self.ep_robot.initialize(conn_type="ap")
         seat0 = Seat(0, 1, 2)
         # seat1 = Seat(1, 1, 1)
 
@@ -44,12 +44,12 @@ class RobotManager:
         self.current_speed = normal_speed
         self.speed_buff = self.current_speed
         self.running = True
-        self.latest_frame = None
-        self.capture_thread = threading.Thread(target=self._capture_frames)
-        self.capture_thread.daemon = True
-        self.lock = threading.Lock()
-        self.start_stream()
-        self.capture_thread.start()
+        # self.latest_frame = None
+        # self.capture_thread = threading.Thread(target=self._capture_frames)
+        # self.capture_thread.daemon = True
+        # self.lock = threading.Lock()
+        # self.start_stream()
+        # self.capture_thread.start()
 
 
 
@@ -57,14 +57,14 @@ class RobotManager:
 
 
 
-        self.localization_intervall=localization_intervall
-        self.curr_x=0
-        self.curr_y=0
-        self.curr_rotation=0
-        occ= monte_carlo.OccupationMap.from_Map(map)
+        # self.localization_intervall=localization_intervall
+        # self.curr_x=0
+        # self.curr_y=0
+        # self.curr_rotation=0
+        # occ= monte_carlo.OccupationMap.from_Map(map)
 
-        self.localizer = localizer.Localizer(self.ep_robot, occ, num_particles=100, movement_perturbation=0.1, rotation_perturbation=0.5, perturbation_uniform=True, update_steps=1)
-        self.delta_since_last_scan = [0,0,0]
+        # self.localizer = localizer.Localizer(self.ep_robot, occ, num_particles=100, movement_perturbation=0.1, rotation_perturbation=0.5, perturbation_uniform=True, update_steps=1)
+        # self.delta_since_last_scan = [0,0,0]
 
         print("Robot initialized.")
 
@@ -222,22 +222,37 @@ class RobotManager:
             self.stop()
         self.set_speed(self.speed_buff)
 
-    def crazy_random_dance(self):
+    def crazy_random_dance(self, moves=50):
         self.speed_buff = self.current_speed
         self.set_speed(100)
-        
-        moves = [
+
+        possible_moves = [
             "forward", "forward_left", "forward_right",
             "left", "right", "rotate_left", "rotate_right"
         ]
-        for _ in range(15):
-            move = random.choice(moves)
+        for _ in range(moves):
+            move = random.choice(possible_moves)
             self.move(move)
-            time.sleep(random.uniform(0.02, 0.08))
+            time.sleep(random.uniform(0.02, 0.25))
         self.stop()
-        
-        self.set_speed(self.speed_buff)
 
+        self.set_speed(self.speed_buff)
+    def wave(self):
+        ARM_X_RANGE = (100, 200)
+        ARM_Y_RANGE = (70, 150)
+        DEFAULT_ARM_X = 110
+        DEFAULT_ARM_Y = 100
+        for x in range(10):
+            self.move_arm(x=DEFAULT_ARM_X,y=ARM_Y_RANGE[0])
+            time.sleep(0.5)
+            self.move_arm(x=DEFAULT_ARM_X,y=ARM_Y_RANGE[1])
+            time.sleep(5)
+    def move_arm(self,x,y):
+        ARM_X_RANGE = (100, 200)
+        ARM_Y_RANGE = (70, 150)
+        x = max(ARM_X_RANGE[0], min(x, ARM_X_RANGE[1]))
+        y = max(ARM_Y_RANGE[0], min(y, ARM_Y_RANGE[1]))
+        self.ep_robot.robotic_arm.moveto(x=x,y=y)
     def move(self, direction):
         """Move the robot in a specified direction.
 
@@ -288,7 +303,7 @@ class RobotManager:
             if frame is not None:
                 with self.lock:
                     self.latest_frame = frame
-            time.sleep(0.01)  # ~30 fps
+            time.sleep(0.03)  # ~30 fps
     def generate_frames(self):
         while True:
             with self.lock:

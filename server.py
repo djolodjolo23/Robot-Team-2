@@ -126,7 +126,10 @@ def spin_robot():
 # def rotate_right():
 #     robot.move('rotate_right')
 #     return jsonify({"message": "Robot rotated right"}), 200
-
+@app.route('/wave')
+def make_robot_wave():
+    robot.wave()
+    return 'Wave',200
 
 
 @app.route("/seats", methods=["GET"])
