@@ -1,13 +1,13 @@
 import time
 
 from flask import Flask, request, jsonify,Response
+from flask_cors import CORS
 from robomaster import robot
 from robot import RobotManager
 from pathfinding import *
 app = Flask(__name__)
-
+CORS(app)
 robot = RobotManager()
-robot.start_stream()
 obstacle0 = Obstacle(10, 10, 20, 20)
 obstacle1= Obstacle(40, 40, 20, 20)
 

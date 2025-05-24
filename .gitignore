@@ -1,3 +1,8 @@
 .python-version
 ./venv
 ./RoboMaster-SDK
+RoboMasterSDK_*_log.txt
+connect.py
+__pycache__
+qrcode.png
+stream/python_stream_liveview/__pycache__/*

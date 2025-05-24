@@ -6,21 +6,31 @@ from robomaster import conn
 from MyQR import myqr
 from PIL import Image
 import cv2
+import threading
+import time
 QRCODE_NAME = "qrcode.png"
 
 
 class RobotManager:
     def __init__(self,  normal_speed=50, sprint_speed=100):
-
         self.ep_robot = robot.Robot()
-        self.ep_robot.initialize(conn_type="sta", sn="3JKCK7E0030BFN")
+        self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
         self.ep_camera = self.ep_robot.camera
         self.ep_chassis = self.ep_robot.chassis
         self.normal_speed = normal_speed
         self.sprint_speed = sprint_speed
         self.current_speed = normal_speed
         self.speed_buff = self.current_speed
-        self.running = False
+        self.running = True
+        self.latest_frame = None
+        self.capture_thread = threading.Thread(target=self._capture_frames)
+        self.capture_thread.daemon = True
+        self.lock = threading.Lock()
+        self.start_stream()
+        self.capture_thread.start()
+
+
+
         print("Robot initialized.")
 
 
@@ -157,21 +167,24 @@ class RobotManager:
         self.ep_camera.start_video_stream(display=False)
     def read_camera(self):
         return self.ep_camera.read_cv2_image()
+    def _capture_frames(self):
+        while self.running:
+            frame = self.ep_camera.read_cv2_image()
+            if frame is not None:
+                with self.lock:
+                    self.latest_frame = frame
+            time.sleep(0.01)  # ~30 fps
     def generate_frames(self):
         while True:
-            frame = self.read_camera()
+            with self.lock:
+                frame = self.latest_frame
             if frame is None:
                 continue
-            # Encode as JPEG
-            ret, buffer = cv2.imencode('.jpg', frame,[int(cv2.IMWRITE_JPEG_QUALITY),95])
+            ret, buffer = cv2.imencode('.jpg', frame)
             if not ret:
                 continue
-            frame_bytes = buffer.tobytes()
-
-            # Yield frame in MJPEG format
             yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-
+                   b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
     # def run_keyboard_control(self):
     #     """Run the robot using keyboard controls. For local testing"""
     #     self.running = True
