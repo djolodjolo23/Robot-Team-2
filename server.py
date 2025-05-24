@@ -9,7 +9,6 @@ from pathfinding import Map, Obstacle
 from robot import RobotManager
 import json
 from pathfinding import *
-import goto_position
 
 app = Flask(__name__)
 CORS(app, resources= {r"/*": {"origins": "*"}})
@@ -42,20 +41,20 @@ def receive_command():
     # goal_id = data[]
     # seat = map.seats[goal_id]
 
+    seat0 = robot.get_seats()[0]
+    seat_coords = (seat0.x, seat0.y)
 
+    start = (1,1)
 
     #path = graphMap.path_from_to(start, seat_coords)
 
     #path_instructions = graphMap.instructions_from_path(path)
 
     #map.plot_path(path)
-    #path_instructions = [(1, 1), (1, -1), (1, 0), (0, -1)]
-    #robot.resolve_path(path_instructions)
+    path_instructions = [(1, 1), (1, -1), (1, 0), (0, -1)]
+    robot.resolve_path(path_instructions)
 
-
-    goto = goto_position.GotoPosition(robot, start_position=(0, 0, 0), localization_interval=5)
-    goto.goto(19, 4)
-    #print("Path instructions:", path_instructions)
+    print("Path instructions:", path_instructions)
 
     #print("Path", path)
 
@@ -63,7 +62,17 @@ def receive_command():
 
     return "test"
 
-
+@app.route("/sound", methods=["POST"])
+def play_sound():
+   # data = request.get_json()
+    #sound_id = data.get("sound_id")
+    sound_id = 1
+    if sound_id:
+        #.play_sound(sound_id).wait_for_completed()
+        robot.play_sound(sound_id).wait_for_completed()
+        return jsonify({"message": f"Sound {sound_id} played successfully."}), 200
+    else:
+        return jsonify({"error": "No sound ID provided."}), 400
 
 
 @app.route('/video_feed')
@@ -71,20 +80,21 @@ def video_feed():
     return Response(robot.generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/play_audio', methods=['GET'])
-def play_audio():
-    """
-    Endpoint to play a specific audio file.
-    Expects a query parameter 'file' with the audio file name.
-    """
-    robot.play_audio()
-    return jsonify({"message": "Audio playback started"}), 200
 
 
 # MOVEMENT
-@app.route('/left')
-def move_left():
-    robot.move('left')
+@app.route('/random_dance')
+def r_dance():
+    robot.crazy_random_dance()
+    return jsonify({"message": "Robot moved left"}), 200
+@app.route('/disco_dance')
+def d_dance():
+    robot.disco_dance()
+    return jsonify({"message": "Robot moved left"}), 200
+
+@app.route('/wackel_dance')
+def w_dance():
+    robot.wackel_dance()
     return jsonify({"message": "Robot moved left"}), 200
 
 @app.route('/right')
@@ -125,10 +135,7 @@ def spin_robot():
 # def rotate_right():
 #     robot.move('rotate_right')
 #     return jsonify({"message": "Robot rotated right"}), 200
-@app.route('/wave')
-def make_robot_wave():
-    robot.wave()
-    return 'Wave',200
+
 
 
 @app.route("/seats", methods=["GET"])
@@ -141,13 +148,13 @@ def move_distance():
     """
     Endpoint to move the robot a specified distance in a given direction.
     Expects JSON payload with 'direction' and 'distance'.
-    'distance' in cm
+    'distance' in cm 
     'direction" options:
         - "forward"
         - "backward"
         - "left"
         - "right"
-
+        
     example payload:
     {
         "direction": "forward",
@@ -174,8 +181,8 @@ def rotate_angle():
     Endpoint to rotate the robot by a specified angle.
     Expects JSON payload with 'angle'.
         'angle' > 0 -> move right
-        'angle < 0 -> move left
-
+        'angle < 0 -> move left 
+        
     example payload:
     {
         "angle": 90
