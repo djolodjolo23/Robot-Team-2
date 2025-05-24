@@ -8,6 +8,9 @@ from MyQR import myqr
 from PIL import Image
 import cv2
 from pathfinding import *
+import localizer
+import threading
+import time
 QRCODE_NAME = "qrcode.png"
 
 
@@ -39,11 +42,29 @@ class RobotManager:
         self.sprint_speed = sprint_speed
         self.current_speed = normal_speed
         self.speed_buff = self.current_speed
-        self.running = False
-        
-        
-        
-      
+        self.running = True
+        self.latest_frame = None
+        self.capture_thread = threading.Thread(target=self._capture_frames)
+        self.capture_thread.daemon = True
+        self.lock = threading.Lock()
+        self.start_stream()
+        self.capture_thread.start()
+
+
+
+
+
+
+
+        self.localization_intervall=localization_intervall
+        self.curr_x=0
+        self.curr_y=0
+        self.curr_rotation=0
+        occ= monte_carlo.OccupationMap.from_Map(map)
+
+        self.localizer = localizer.Localizer(self.ep_robot, occ, num_particles=100, movement_perturbation=0.1, rotation_perturbation=0.5, perturbation_uniform=True, update_steps=1)
+        self.delta_since_last_scan = [0,0,0]
+
         print("Robot initialized.")
 
 
@@ -73,14 +94,14 @@ class RobotManager:
         for instruction in path_instructions:
             self.move_distance("forward",instruction[0] * 10)
             self.move_distance("left", instruction[1] * 10)
-            
+
     def resolve_path(self, path_instructions):
         if not self.ep_robot:
             print("Robot not initialized.")
             return
         for instruction in path_instructions:
             dx, dy = instruction[0], instruction[1]
-            
+
             if dx == 0 and dy == 0:
                 target_angle = 0
             else:
@@ -95,7 +116,7 @@ class RobotManager:
             self.delta_since_last_scan[0] += dx
             self.delta_since_last_scan[1] += dy
             self.delta_since_last_scan[2] += target_angle - self.current_angle
-            
+
 
 
 
@@ -192,15 +213,15 @@ class RobotManager:
         self.set_speed(50)
         if(angle > 0):
             self.move("rotate_right")
-            time.sleep(constant * angle) 
+            time.sleep(constant * angle)
             self.stop()
         else:
             self.move("rotate_left")
-            time.sleep(constant * -angle) 
+            time.sleep(constant * -angle)
             self.stop()
         self.set_speed(self.speed_buff)
-        
-               
+
+
 
     def move(self, direction):
         """Move the robot in a specified direction.
@@ -246,21 +267,24 @@ class RobotManager:
         self.ep_camera.start_video_stream(display=False)
     def read_camera(self):
         return self.ep_camera.read_cv2_image()
+    def _capture_frames(self):
+        while self.running:
+            frame = self.ep_camera.read_cv2_image()
+            if frame is not None:
+                with self.lock:
+                    self.latest_frame = frame
+            time.sleep(0.01)  # ~30 fps
     def generate_frames(self):
         while True:
-            frame = self.read_camera()
+            with self.lock:
+                frame = self.latest_frame
             if frame is None:
                 continue
-            # Encode as JPEG
-            ret, buffer = cv2.imencode('.jpg', frame,[int(cv2.IMWRITE_JPEG_QUALITY),95])
+            ret, buffer = cv2.imencode('.jpg', frame)
             if not ret:
                 continue
-            frame_bytes = buffer.tobytes()
-
-            # Yield frame in MJPEG format
             yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-
+                   b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
     # def run_keyboard_control(self):
     #     """Run the robot using keyboard controls. For local testing"""
     #     self.running = True
