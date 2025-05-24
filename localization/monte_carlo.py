@@ -107,19 +107,24 @@ class OccupationMap:
 
 
 class MonteCarloLocalization:
-    def __init__(self, occ_map, num_particles=100):
+    def __init__(self, occ_map, num_particles=100, initial_position=(1, 1, 0)):
         self.particles = []
         self.num_particles = num_particles
         self.occupation_map = occ_map
             
-        self.init_particles()
+        self.init_particles(*initial_position, random=False)
         
-    def init_particles(self):
+    def init_particles(self, x, y, rotation, random=True):
         for i in range(self.num_particles):
             particle = Particle()
-            particle.rotation = math.pi * random.uniform(0, 2)
-            particle.x = random.uniform(0, self.occupation_map.width)
-            particle.y = random.uniform(0, self.occupation_map.heigth)
+            if random:
+                particle.rotation = math.pi * random.uniform(0, 2)
+                particle.x = random.uniform(0, self.occupation_map.width)
+                particle.y = random.uniform(0, self.occupation_map.heigth)
+            else:
+                particle.rotation = rotation
+                particle.x = x
+                particle.y = y
             self.particles.append(particle)
     
     def max_particle(self):
