@@ -92,6 +92,8 @@ class RobotManager:
         for i, instruction in enumerate(path_instructions):
             if i % self.localization_intervall == 0:
                 x,y,r=self.localizer.step(self.delta_since_last_scan[0], self.delta_since_last_scan[1], self.delta_since_last_scan[2])
+                print(f"Localization step {i//self.localization_intervall}: x={x}, y={y}, rotation={r}")
+                print(f"Current Position: x={self.curr_x}, y={self.curr_y}, rotation={self.curr_rotation}")
                 self.curr_x = x
                 self.curr_y = y
                 self.curr_rotation = r
