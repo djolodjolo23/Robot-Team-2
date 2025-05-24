@@ -23,6 +23,7 @@ class RobotController:
         self.normal_speed = normal_speed
         self.sprint_speed = sprint_speed
         self.current_speed = normal_speed
+        self.speed_buff = self.current_speed
         self.running = False
         self.ep_robot.play_sound(robot.SOUND_ID_1F).wait_for_completed()
 
@@ -42,6 +43,55 @@ class RobotController:
         elif speed_type == "sprint":
             self.current_speed = self.sprint_speed
 
+    def move_distance(self, direction, dist):
+        """Move the robot in a specified direction.
+
+        Args:
+            dist (int): distance in cm;
+            direction (str): Direction to move. Options are:
+                - "forward"
+                - "forward_left"
+                - "forward_right"
+                - "left"
+                - "right"
+        """
+        self.speed_buff = self.current_speed
+        self.set_speed(50)
+        self.move(direction)
+        time.sleep(0.05 * dist) #TODO change the sleep value
+        self.stop()
+        self.set_speed(self.speed_buff)
+        
+        
+        
+        
+        
+    def rotate_angle(self, angle):
+        """Rotate the robot by a given angle.
+        
+            Args:
+            angle(int): Angle in deg 
+                angle > 0 -> turn right
+                angle < 0 -> turn left 
+        """
+        self.speed_buff = self.current_speed
+        self.set_speed(50)
+        if(angle > 0):
+            self.move("rotate_right")
+            time.sleep(0.05 * angle) #TODO change the sleep value
+            self.stop()
+        else:
+            self.move("rotate_left")
+            time.sleep(0.05 * angle) #TODO change the sleep value
+            self.stop()
+        self.set_speed(self.speed_buff)
+        
+        
+        
+        
+        
+        
+    
     def move(self, direction):
         """Move the robot in a specified direction.
 
