@@ -7,7 +7,7 @@ from pathfinding import *
 app = Flask(__name__)
 
 robot = RobotManager()
-
+robot.start_stream()
 obstacle0 = Obstacle(10, 10, 20, 20)
 obstacle1= Obstacle(40, 40, 20, 20)
 
