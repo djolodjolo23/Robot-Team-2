@@ -1,20 +1,26 @@
 import time
 
 from flask import Flask, request, jsonify,Response
+from flask_cors import CORS
+from matplotlib.font_manager import json_dump
 from robomaster import robot
 from robot import RobotManager
+import json
 from pathfinding import *
 app = Flask(__name__)
+CORS(app, resources= {r"/*": {"origins": "*"}})
 
 robot = RobotManager()
 robot.start_stream()
-obstacle0 = Obstacle(10, 10, 20, 20)
-obstacle1= Obstacle(40, 40, 20, 20)
 
-seat0 = Seat(0, 90, 90)
+obstacle0 = Obstacle(2, 2, 2, 2)
+obstacle1= Obstacle(4, 4, 2, 2)
+
+seat0 = Seat(0, 9, 9)
 seat1 = Seat(1, 1, 1)
-map = Map(100, 100, [obstacle0,  obstacle1], [seat0, seat1])
+map = Map(10, 10, [obstacle0, obstacle1], [seat0, seat1])
 
+graphMap = GraphMap(map)
 
 
 server_info = {
@@ -33,9 +39,30 @@ def home():
 def status():
     return jsonify(server_info), 200
 
-@app.route("/send", methods=["POST"])
+@app.route("/send", methods=["GET"])
 def receive_command():
-    pass
+    # data = request.get_json()
+    # if not data or 'command' not in data:
+    #     return jsonify({"error": "Invalid command format."}), 400
+    #goal_id = data[goal]
+    #seat = map.seats[goal_id]
+
+    seat = seat0
+    seat_coords = (seat.x, seat.y)
+
+    start = (1,1)
+
+    path = graphMap.path_from_to(start, seat_coords)
+
+    path_instructions = graphMap.instructions_from_path(path)
+
+    print("Path instructions:", path_instructions)
+
+    print("Path", path)
+
+    json_dump = json.dumps(path_instructions, indent=4)
+
+    return json_dump
 
 @app.route("/sound", methods=["POST"])
 def play_sound():
@@ -93,13 +120,73 @@ def stop_robot():
     robot.stop()
     return jsonify({"message": "Robot stopped"}), 200
 
+# @app.route('/rotate_right_given_angle')
+# def rotate_right():
+#     robot.move('rotate_right')
+#     return jsonify({"message": "Robot rotated right"}), 200
+
+
+
 @app.route("/seats", methods=["GET"])
 def get_seats():
-    seats = [
-        {"seat_id": 1, "status": "available"},
-        {"seat_id": 2, "status": "occupied"},
-        {"seat_id": 3, "status": "available"}
-    ]
-    return jsonify(seats), 200
+    return jsonify(map.to_dict())
+
+
+@app.route('/move_distance', methods=['POST'])
+def move_distance():
+    """
+    Endpoint to move the robot a specified distance in a given direction.
+    Expects JSON payload with 'direction' and 'distance'.
+    'distance' in cm 
+    'direction" options:
+        - "forward"
+        - "backward"
+        - "left"
+        - "right"
+        
+    example payload:
+    {
+        "direction": "forward",
+        "distance": 50
+    }
+    """
+    data = request.get_json()
+    direction = data.get("direction")
+    distance = data.get("distance")
+
+    if not direction or not isinstance(distance, (int, float)):
+        return jsonify({"error": "Invalid input. Provide 'direction' and 'distance'."}), 400
+
+    try:
+        robot.move_distance(direction, distance)
+        return jsonify({"message": f"Robot moved {distance} cm in {direction} direction."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/rotate_angle', methods=['POST'])
+def rotate_angle():
+    """
+    Endpoint to rotate the robot by a specified angle.
+    Expects JSON payload with 'angle'.
+        'angle' > 0 -> move right
+        'angle < 0 -> move left 
+        
+    example payload:
+    {
+        "angle": 90
+    }
+    """
+    data = request.get_json()
+    angle = data.get("angle")
+
+    if not isinstance(angle, (int, float)):
+        return jsonify({"error": "Invalid input. Provide 'angle' as a number."}), 400
+
+    try:
+        robot.rotate_angle(angle)
+        return jsonify({"message": f"Robot rotated by {angle} degrees."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
