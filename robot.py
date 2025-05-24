@@ -13,6 +13,7 @@ from pathfinding import *
 import localizer
 import threading
 import time
+import random
 QRCODE_NAME = "qrcode.png"
 
 
@@ -231,7 +232,21 @@ class RobotManager:
             self.stop()
         self.set_speed(self.speed_buff)
 
-
+    def crazy_random_dance(self):
+        self.speed_buff = self.current_speed
+        self.set_speed(100)
+        
+        moves = [
+            "forward", "forward_left", "forward_right",
+            "left", "right", "rotate_left", "rotate_right"
+        ]
+        for _ in range(15):
+            move = random.choice(moves)
+            self.move(move)
+            time.sleep(random.uniform(0.02, 0.08))
+        self.stop()
+        
+        self.set_speed(self.speed_buff)
 
     def move(self, direction):
         """Move the robot in a specified direction.
