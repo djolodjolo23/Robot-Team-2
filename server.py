@@ -1,29 +1,20 @@
 import time
 
-from flask import Flask, request, jsonify #Response
-from flask_cors import CORS
+from flask import Flask, request, jsonify,Response
 from robomaster import robot
 from robot import RobotManager
-#from camera_stream import generate_frames
 from pathfinding import *
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
 
 robot = RobotManager()
-
+robot.start_stream()
 obstacle0 = Obstacle(10, 10, 20, 20)
 obstacle1= Obstacle(40, 40, 20, 20)
 
 seat0 = Seat(0, 90, 90)
 seat1 = Seat(1, 1, 1)
+map = Map(100, 100, [obstacle0,  obstacle1], [seat0, seat1])
 
-map = Map(350, 230, [obstacle0,  obstacle1], [seat0, seat1])
-seats = map.seats
-obstacles = map.obstacles
-
-#graphMap = GraphMap(map)
-
-#print(jsonify(map))
 
 
 server_info = {
@@ -42,25 +33,9 @@ def home():
 def status():
     return jsonify(server_info), 200
 
-# @app.route("/send_to_goal", methods=["POST"])
-# def receive_command():
-#     data = request.get_json()
-#     if not data or 'goal' not in data:
-#         return jsonify({"error": "Invalid command format. Expected JSON with 'goal' key."}), 400
-#     #goal_id = data['goal']
-#     #seat = map.seats[goal_id]
-#
-#     seat = seat0
-#     seat_coords = (seat.x, seat.y)
-#
-#     start = (1, 1)
-#
-#     path = graphMap.path_from_to(start, seat_coords) # path
-#
-#     path_instructions = graphMap.instructions_from_path(path) # list of instructions
-#
-
-
+@app.route("/send", methods=["POST"])
+def receive_command():
+    pass
 
 @app.route("/sound", methods=["POST"])
 def play_sound():
@@ -75,12 +50,12 @@ def play_sound():
         return jsonify({"error": "No sound ID provided."}), 400
 
 
-# @app.route('/video_feed')
-# def video_feed():
-#     return Response(generate_frames(),
-#                     mimetype='multipart/x-mixed-replace; boundary=frame')
-#
-#
+@app.route('/video_feed')
+def video_feed():
+    return Response(robot.generate_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
 
 # MOVEMENT
 @app.route('/left')
@@ -120,6 +95,11 @@ def stop_robot():
 
 @app.route("/seats", methods=["GET"])
 def get_seats():
-    return jsonify(map), 200
+    seats = [
+        {"seat_id": 1, "status": "available"},
+        {"seat_id": 2, "status": "occupied"},
+        {"seat_id": 3, "status": "available"}
+    ]
+    return jsonify(seats), 200
 
 
