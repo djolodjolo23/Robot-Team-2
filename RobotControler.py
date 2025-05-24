@@ -5,7 +5,8 @@ from robomaster import robot
 class RobotController:
     def __init__(self, normal_speed=50, sprint_speed=100):
         self.ep_robot = robot.Robot()
-        self.ep_robot.initialize(conn_type="sta")
+        # sta or ap
+        self.ep_robot.initialize(conn_type="ap") 
         self.ep_chassis = self.ep_robot.chassis
         self.normal_speed = normal_speed
         self.sprint_speed = sprint_speed
@@ -86,14 +87,14 @@ class RobotController:
                     self.move("forward")
                 elif keyboard.is_pressed('s'):
                     self.move("backward")
-                elif keyboard.is_pressed('d'):
-                    self.move("right")
-                elif keyboard.is_pressed('a'):
-                    self.move("left")
                 elif keyboard.is_pressed('ctrl') and keyboard.is_pressed('a'):
                     self.move("rotate_left")
                 elif keyboard.is_pressed('ctrl') and keyboard.is_pressed('d'):
                     self.move("rotate_right")
+                elif keyboard.is_pressed('d'):
+                    self.move("right")
+                elif keyboard.is_pressed('a'):
+                    self.move("left")
                 else:
                     self.stop()
 
