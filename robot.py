@@ -7,15 +7,12 @@ from robomaster import conn
 from MyQR import myqr
 from PIL import Image
 import cv2
-from localization import distance_scan_script, plot
-from localization import monte_carlo
 from pathfinding import *
-import localizer
 QRCODE_NAME = "qrcode.png"
 
 
 class RobotManager:
-    def __init__(self,  normal_speed=50, sprint_speed=100, localization_intervall=4):
+    def __init__(self,  normal_speed=50, sprint_speed=100):
 
 
         #fig, ax = plt.subplots(figsize=(6, 6))
@@ -46,16 +43,7 @@ class RobotManager:
         
         
         
-        
-        self.localization_intervall=localization_intervall
-        self.curr_x=0
-        self.curr_y=0
-        self.curr_rotation=0
-        occ= monte_carlo.OccupationMap.from_Map(map)
-        
-        self.localizer = localizer.Localizer(self.ep_robot, occ, num_particles=100, movement_perturbation=0.1, rotation_perturbation=0.5, perturbation_uniform=True, update_steps=1)
-        self.delta_since_last_scan = [0,0,0]
-
+      
         print("Robot initialized.")
 
 
@@ -90,15 +78,7 @@ class RobotManager:
         if not self.ep_robot:
             print("Robot not initialized.")
             return
-        for i, instruction in enumerate(path_instructions):
-            if i % self.localization_intervall == 0:
-                x,y,r=self.localizer.step(self.delta_since_last_scan[0], self.delta_since_last_scan[1], self.delta_since_last_scan[2])
-                print(f"Localization step {i//self.localization_intervall}: x={x}, y={y}, rotation={r}")
-                print(f"Current Position: x={self.curr_x}, y={self.curr_y}, rotation={self.curr_rotation}")
-                self.curr_x = x
-                self.curr_y = y
-                self.curr_rotation = r
-                self.delta_since_last_scan = [0, 0, 0]
+        for instruction in path_instructions:
             dx, dy = instruction[0], instruction[1]
             
             if dx == 0 and dy == 0:
