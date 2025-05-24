@@ -1,5 +1,6 @@
 from server import app
 from robot import RobotManager
+import time
 
 
 if __name__ == "__main__":
@@ -7,12 +8,9 @@ if __name__ == "__main__":
     robot.initialize_robot()
     print("Starting server...")
 
-    app.run(host='0.0.0.0' , port=8000)
+   app.run(host='0.0.0.0' , port=8000)
 
-    print("Server started.")
-
-    #robot.play_sound()
-    #robot.close_robot()
+   print("Server started.")
 
 
     # play sound
