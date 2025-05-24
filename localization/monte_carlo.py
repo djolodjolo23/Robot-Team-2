@@ -178,7 +178,7 @@ class MonteCarloLocalization:
         self.particles = new_particles
         
 
-    def update_step(self, x,y,rot, scan_data, perturbation_parameters=(0.1, 0.5, 0.5)):
+    def update_step(self, x,y,rot, scan_data, perturbation_parameters=(0.1, 0.5, 0.5, True)):
         self.update_particles(x, y, rot)
         self.perturbate_particles(*perturbation_parameters)
         self.update_particle_probabilities(scan_data)
