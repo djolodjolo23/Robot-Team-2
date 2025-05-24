@@ -137,13 +137,13 @@ def move_distance():
     """
     Endpoint to move the robot a specified distance in a given direction.
     Expects JSON payload with 'direction' and 'distance'.
-    'distance' in cm 
+    'distance' in cm
     'direction" options:
         - "forward"
         - "backward"
         - "left"
         - "right"
-        
+
     example payload:
     {
         "direction": "forward",
@@ -170,8 +170,8 @@ def rotate_angle():
     Endpoint to rotate the robot by a specified angle.
     Expects JSON payload with 'angle'.
         'angle' > 0 -> move right
-        'angle < 0 -> move left 
-        
+        'angle < 0 -> move left
+
     example payload:
     {
         "angle": 90

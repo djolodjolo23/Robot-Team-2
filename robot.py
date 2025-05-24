@@ -11,11 +11,14 @@ from localization import distance_scan_script, plot
 from localization import monte_carlo
 from pathfinding import *
 import localizer
+import threading
+import time
+import random
 QRCODE_NAME = "qrcode.png"
 
 
 class RobotManager:
-    def __init__(self,  normal_speed=50, sprint_speed=100, localization_intervall=4):
+    def __init__(self,  normal_speed=50, sprint_speed=100):
 
 
         #fig, ax = plt.subplots(figsize=(6, 6))
@@ -24,8 +27,8 @@ class RobotManager:
 
 
         self.ep_robot = robot.Robot()
-        self.ep_robot.initialize(conn_type="sta", sn="3JKCK7E0030BFN")
-        #self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
+        #self.ep_robot.initialize(conn_type="ap", sn="3JKCK7E0030BFN")
+        self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
 
         seat0 = Seat(0, 1, 2)
         # seat1 = Seat(1, 1, 1)
@@ -42,19 +45,13 @@ class RobotManager:
         self.sprint_speed = sprint_speed
         self.current_speed = normal_speed
         self.speed_buff = self.current_speed
-        self.running = False
-        
-        
-        
-        
-        self.localization_intervall=localization_intervall
-        self.curr_x=0
-        self.curr_y=0
-        self.curr_rotation=0
-        occ= monte_carlo.OccupationMap.from_Map(map)
-        
-        self.localizer = localizer.Localizer(self.ep_robot, occ, num_particles=100, movement_perturbation=0.1, rotation_perturbation=0.5, perturbation_uniform=True, update_steps=1)
-        self.delta_since_last_scan = [0,0,0]
+        self.running = True
+        self.latest_frame = None
+        self.capture_thread = threading.Thread(target=self._capture_frames)
+        self.capture_thread.daemon = True
+        self.lock = threading.Lock()
+        self.start_stream()
+        self.capture_thread.start()
 
         print("Robot initialized.")
 
@@ -85,22 +82,14 @@ class RobotManager:
         for instruction in path_instructions:
             self.move_distance("forward",instruction[0] * 10)
             self.move_distance("left", instruction[1] * 10)
-            
+
     def resolve_path(self, path_instructions):
         if not self.ep_robot:
             print("Robot not initialized.")
             return
-        for i, instruction in enumerate(path_instructions):
-            if i % self.localization_intervall == 0:
-                x,y,r=self.localizer.step(self.delta_since_last_scan[0], self.delta_since_last_scan[1], self.delta_since_last_scan[2])
-                print(f"Localization step {i//self.localization_intervall}: x={x}, y={y}, rotation={r}")
-                print(f"Current Position: x={self.curr_x}, y={self.curr_y}, rotation={self.curr_rotation}")
-                self.curr_x = x
-                self.curr_y = y
-                self.curr_rotation = r
-                self.delta_since_last_scan = [0, 0, 0]
+        for instruction in path_instructions:
             dx, dy = instruction[0], instruction[1]
-            
+
             if dx == 0 and dy == 0:
                 target_angle = 0
             else:
@@ -115,7 +104,7 @@ class RobotManager:
             self.delta_since_last_scan[0] += dx
             self.delta_since_last_scan[1] += dy
             self.delta_since_last_scan[2] += target_angle - self.current_angle
-            
+
 
 
 
@@ -220,14 +209,21 @@ class RobotManager:
             self.stop()
         self.set_speed(self.speed_buff)
 
-    def play_audio(self):
-        """Play an audio file."""
-        if self.ep_robot:
-            self.ep_robot.play_audio("hello.wav").wait_for_completed()
-            print("Audio played.")
-        else:
-            print("Robot not initialized.")
-               
+    def crazy_random_dance(self):
+        self.speed_buff = self.current_speed
+        self.set_speed(100)
+
+        moves = [
+            "forward", "forward_left", "forward_right",
+            "left", "right", "rotate_left", "rotate_right"
+        ]
+        for _ in range(15):
+            move = random.choice(moves)
+            self.move(move)
+            time.sleep(random.uniform(0.02, 0.08))
+        self.stop()
+
+        self.set_speed(self.speed_buff)
 
     def move(self, direction):
         """Move the robot in a specified direction.
@@ -273,21 +269,24 @@ class RobotManager:
         self.ep_camera.start_video_stream(display=False)
     def read_camera(self):
         return self.ep_camera.read_cv2_image()
+    def _capture_frames(self):
+        while self.running:
+            frame = self.ep_camera.read_cv2_image()
+            if frame is not None:
+                with self.lock:
+                    self.latest_frame = frame
+            time.sleep(0.01)  # ~30 fps
     def generate_frames(self):
         while True:
-            frame = self.read_camera()
+            with self.lock:
+                frame = self.latest_frame
             if frame is None:
                 continue
-            # Encode as JPEG
-            ret, buffer = cv2.imencode('.jpg', frame,[int(cv2.IMWRITE_JPEG_QUALITY),95])
+            ret, buffer = cv2.imencode('.jpg', frame)
             if not ret:
                 continue
-            frame_bytes = buffer.tobytes()
-
-            # Yield frame in MJPEG format
             yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-
+                   b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
     # def run_keyboard_control(self):
     #     """Run the robot using keyboard controls. For local testing"""
     #     self.running = True

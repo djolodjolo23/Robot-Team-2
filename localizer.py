@@ -7,7 +7,7 @@ class Localizer:
         
         self.ep_robot = ep_robot
         self.Map = Map
-        self.mc = MonteCarloLocalization(Map, num_particles=num_particles)
+        self.mc = MonteCarloLocalization(Map, num_particles=num_particles, initial_position=position)
         self.last_scan = None
         self.perturbation_param = (movement_perturbation, rotation_perturbation, perturbation_uniform)
         self.curr_position = position
