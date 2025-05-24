@@ -195,6 +195,7 @@ class Node:
 class RRT:
     
     def __init__(self, map, maxiter = 5000, step_len = 2.0, search_rad = 6.0, goal_rad = 3.0):
+        # search_rad should be around 3x step_len, both grow with map size
         self.map = map
         
         self.maxiter = maxiter
