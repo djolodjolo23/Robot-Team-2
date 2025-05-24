@@ -4,10 +4,20 @@ from flask import Flask, request, jsonify, Response
 from robomaster import robot
 from robot import RobotManager
 from camera_stream import generate_frames
+from pathfinding import *
 app = Flask(__name__)
 
 robot = RobotManager()
 robot.initialize_robot()
+
+obstacle0 = Obstacle(10, 10, 20, 20)
+obstacle1= Obstacle(40, 40, 20, 20)
+
+seat0 = Seat(0, 90, 90)
+seat1 = Seat(1, 1, 1)
+map = Map(100, 100, [obstacle0,  obstacle1], [seat0, seat1])
+
+
 
 server_info = {
     "name": "Server",
