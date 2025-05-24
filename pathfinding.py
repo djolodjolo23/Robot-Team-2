@@ -15,7 +15,7 @@ class Obstacle:
     def is_inside(self, x, y):
         """ Check if the point (x, y) is inside of the obstacle """
         
-        return x >= self.x and x <= self.x + self.width and y >= self.y and y <= self.height
+        return x >= self.x and x <= self.x + self.width and y >= self.y and y <= self.y + self.height
     
 class Seat:
     """ Each seat is defined by a unique ID and its coordinates """
@@ -59,8 +59,8 @@ class Map:
                                 facecolor="red", edgecolor="red", alpha=0.6))
 
         # Axes cosmetics
-        ax.set_xlim(0, self.width)
-        ax.set_ylim(0, self.height)
+        ax.set_xlim(-1, self.width + 1)
+        ax.set_ylim(-1, self.height + 1)
         ax.set_aspect("equal", adjustable="box")
         ax.set_xlabel("x")
         ax.set_ylabel("y")
@@ -102,6 +102,7 @@ class GraphMap:
         self.nodes_to_coord = nodes_to_coord
         self.coord_to_nodes = coord_to_nodes
         self.graph = csg.csgraph_from_dense(adjacency_matrix)
+        self.map = map
         
     def path_from_to(self, start, goal):
         start_index = self.coord_to_nodes[start]
@@ -146,9 +147,17 @@ class GraphMap:
                             linewidth=2, edgecolor="black", facecolor="skyblue", alpha = 0.2, label = 'office'))
 
         # Obstacles
-        for o in self.map.obstacles:
+        for i, o in enumerate(self.map.obstacles):
             ax.add_patch(Rectangle((o.x, o.y), o.width, o.height,
-                                facecolor="red", edgecolor="red", alpha=0.6))
+                                facecolor="red", edgecolor="red", alpha=0.6, label = 'obstacle' if i == 0 else '_nolegend_'))
+
+        xs, ys = zip(*path)           # unpack [(x1,y1), (x2,y2), …]
+        ax.plot(xs, ys,
+        linestyle='-',
+        linewidth=2.5,
+        color='orange',
+        label='Path',
+        zorder=2) 
 
         # Start & goal
         ax.scatter(*start, marker="o", s=100, label="Start", color = 'green')
