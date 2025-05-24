@@ -91,7 +91,7 @@ class Map:
                             linewidth=2, edgecolor="black", facecolor="skyblue", alpha = 0.2, label = 'office'))
 
         # Obstacles
-        for i, o in enumerate(self.map.obstacles):
+        for i, o in enumerate(self.obstacles):
             ax.add_patch(Rectangle((o.x, o.y), o.width, o.height,
                                 facecolor="red", edgecolor="red", alpha=0.6, label = 'obstacle' if i == 0 else '_nolegend_'))
 
