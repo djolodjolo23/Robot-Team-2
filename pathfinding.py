@@ -74,7 +74,7 @@ class Map:
         ax.set_title("Workspace with Obstacles, Start, and Goal")
         plt.legend()
     
-    def to_json(self):
+    def to_dict(self):
         """ Convert the map to a JSON serializable format """
         return {
             "width": self.width,
