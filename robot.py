@@ -24,8 +24,8 @@ class RobotManager:
 
 
         self.ep_robot = robot.Robot()
-        #self.ep_robot.initialize(conn_type="ap", sn="3JKCK7E0030BFN")
-        self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
+        self.ep_robot.initialize(conn_type="sta", sn="3JKCK7E0030BFN")
+        #self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
 
         seat0 = Seat(0, 1, 2)
         # seat1 = Seat(1, 1, 1)
@@ -219,7 +219,14 @@ class RobotManager:
             time.sleep(constant * -angle) 
             self.stop()
         self.set_speed(self.speed_buff)
-        
+
+    def play_audio(self):
+        """Play an audio file."""
+        if self.ep_robot:
+            self.ep_robot.play_audio("hello.wav").wait_for_completed()
+            print("Audio played.")
+        else:
+            print("Robot not initialized.")
                
 
     def move(self, direction):

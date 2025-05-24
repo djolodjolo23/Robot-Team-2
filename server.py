@@ -62,17 +62,7 @@ def receive_command():
 
     return "test"
 
-@app.route("/sound", methods=["POST"])
-def play_sound():
-   # data = request.get_json()
-    #sound_id = data.get("sound_id")
-    sound_id = 1
-    if sound_id:
-        #.play_sound(sound_id).wait_for_completed()
-        robot.play_sound(sound_id).wait_for_completed()
-        return jsonify({"message": f"Sound {sound_id} played successfully."}), 200
-    else:
-        return jsonify({"error": "No sound ID provided."}), 400
+
 
 
 @app.route('/video_feed')
@@ -80,6 +70,14 @@ def video_feed():
     return Response(robot.generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/play_audio', methods=['GET'])
+def play_audio():
+    """
+    Endpoint to play a specific audio file.
+    Expects a query parameter 'file' with the audio file name.
+    """
+    robot.play_audio()
+    return jsonify({"message": "Audio playback started"}), 200
 
 
 # MOVEMENT

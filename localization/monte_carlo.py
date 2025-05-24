@@ -28,7 +28,7 @@ class OccupationMap:
         # Outer wall (rectangle: xmin, ymin, xmax, ymax)
         self.boundary = Polygon(boundary_points) if boundary_points else Polygon([(0, 0), (100, 0), (100, 100), (0, 100)])
         self.width = self.boundary.bounds[2] - self.boundary.bounds[0]
-        self.heigth = self.boundary.bounds[3] - self.boundary.bounds[1]
+        self.height = self.boundary.bounds[3] - self.boundary.bounds[1]
         
         # List of obstacle polygons
         self.obstacles = [Polygon(obs) for obs in obstacles] if obstacles else []
@@ -119,7 +119,7 @@ class MonteCarloLocalization:
             particle = Particle()
             particle.rotation = math.pi * random.uniform(0, 2)
             particle.x = random.uniform(0, self.occupation_map.width)
-            particle.y = random.uniform(0, self.occupation_map.heigth)
+            particle.y = random.uniform(0, self.occupation_map.height)
             self.particles.append(particle)
     
     def max_particle(self):
