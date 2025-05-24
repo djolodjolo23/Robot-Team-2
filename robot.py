@@ -44,27 +44,12 @@ class RobotManager:
         self.current_speed = normal_speed
         self.speed_buff = self.current_speed
         self.running = True
-        # self.latest_frame = None
-        # self.capture_thread = threading.Thread(target=self._capture_frames)
-        # self.capture_thread.daemon = True
-        # self.lock = threading.Lock()
-        # self.start_stream()
-        # self.capture_thread.start()
-
-
-
-
-
-
-
-        # self.localization_intervall=localization_intervall
-        # self.curr_x=0
-        # self.curr_y=0
-        # self.curr_rotation=0
-        # occ= monte_carlo.OccupationMap.from_Map(map)
-
-        # self.localizer = localizer.Localizer(self.ep_robot, occ, num_particles=100, movement_perturbation=0.1, rotation_perturbation=0.5, perturbation_uniform=True, update_steps=1)
-        # self.delta_since_last_scan = [0,0,0]
+        self.latest_frame = None
+        self.capture_thread = threading.Thread(target=self._capture_frames)
+        self.capture_thread.daemon = True
+        self.lock = threading.Lock()
+        self.start_stream()
+        self.capture_thread.start()
 
         print("Robot initialized.")
 
