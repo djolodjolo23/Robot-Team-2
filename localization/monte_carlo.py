@@ -79,8 +79,8 @@ class OccupationMap:
             ax.fill(x, y, color='gray', alpha=0.7, label='Obstacle' if i == 0 else "")
 
         ax.set_aspect('equal')
-        ax.set_xlim(-1, 101)
-        ax.set_ylim(-1, 101)
+        ax.set_xlim(-50, 150)
+        ax.set_ylim(-50, 150)
         ax.grid(True)
         ax.set_title("Occupation Map")
         ax.legend()
@@ -157,9 +157,9 @@ class MonteCarloLocalization:
                 particle.x += random.gauss(0, x)
                 particle.y += random.gauss(0, y)
             
-    def resample_particles(self):
+    def resample_particles(self, next_particles=None):
         weights = [p.probability for p in self.particles]
-        
+        self.num_particles = next_particles if next_particles is not None else self.num_particles
         new_particles = []
         for i in range(self.num_particles):
             index = random.choices(range(len(self.particles)), weights)[0]
@@ -167,9 +167,9 @@ class MonteCarloLocalization:
         self.particles = new_particles
         
         
-    def update_step(self, x,y,rot, scan_data, perturbation_parameters=(0.1, 1, 1)):
+    def update_step(self, x,y,rot, scan_data, perturbation_parameters=(0.1, 1, 1), next_particles=None):
         self.update_particles(x, y, rot)
         self.perturbate_particles(*perturbation_parameters)
         self.update_particle_probabilities(scan_data)
-        self.resample_particles()
+        self.resample_particles(next_particles)
         

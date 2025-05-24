@@ -5,8 +5,9 @@ from shapely.geometry import LineString, Polygon, Point
 import localization.plot as plot
 from localization.monte_carlo import Particle, OccupationMap, MonteCarloLocalization
 
-num_particles = 50
-num_scan_points = 30
+num_particles = 10
+num_scan_points = 10
+perturbation_params = (0.1, 1, 1)
         
 # Instantiate Localization
 obstacles = [
@@ -55,10 +56,13 @@ def init():
 
 # Update function for each frame
 def update(frame):
+    print(f"Frame {frame}")
+    
     dx = 0.0
     dy = 0
     drot = 0
-    localization.update_step(dx, dy, drot, scan)
+   
+    localization.update_step(dx, dy, drot, scan, perturbation_params, next_particles=num_particles)
     particles = localization.particles
     x = [p.x for p in particles]
     y = [p.y for p in particles]
@@ -72,6 +76,8 @@ def update(frame):
     arrow_lengths = [5 + 20 * p/max_prob for p in prob]
     u = [u[i] * arrow_lengths[i] for i in range(len(u))]
     v = [v[i] * arrow_lengths[i] for i in range(len(v))]
+           
+    
     # Update quiver
     
     quiver.set_offsets(np.c_[x, y])
@@ -81,7 +87,7 @@ def update(frame):
     # print(p0.rotation)
     scan_x, scan_y=[],[]
     for p0 in localization.particles:
-        scan_x_i, scan_y_i = plot.rotary_plot_scan_results(p0.x, p0.y, 0, occ.get_particle_distance_scan(p0,num_scan_points), ax)
+        scan_x_i, scan_y_i = plot.rotary_plot_scan_results(50, 50, 0, occ.get_particle_distance_scan(p0,num_scan_points), ax)
         scan_x+=scan_x_i
         scan_y+=scan_y_i
     scan_plot.set_offsets(np.c_[scan_x, scan_y])
