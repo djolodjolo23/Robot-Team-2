@@ -29,11 +29,6 @@ class Map:
     
     """Map defined by the grid [0, width - 1] x [0, heigth - 1]"""
     
-    MAX_ITER      = 5000               # iterations for RRT*
-    STEP_LEN      = 2.0                # incremental distance
-    SEARCH_RAD    = 6.0                # radius for rewiring (RRT*)
-    GOAL_RADIUS   = 3.0    
-    
     def __init__(self, width, height, obstacles: list, seats: list):
         self.width = width
         self.height = height
@@ -83,6 +78,8 @@ class Map:
             "seats": [{"id": s.id, "x": s.x, "y": s.y} for s in self.seats]
         }
         
+### Pathfinding with RRT* ###
+        
 class Node:
     __slots__ = ("x", "y", "parent", "cost")
     def __init__(self, x, y):
@@ -103,7 +100,7 @@ class RRT:
         self.search_rad = search_rad
         self.goal_rad = goal_rad
     
-    def distance(a, b):
+    def distance(self, a, b):
         return math.hypot(a[0] - b[0], a[1] - b[1])
 
 
@@ -122,11 +119,11 @@ class RRT:
 
 
     def random_point(self):
-        return (random.uniform(0, self.width), random.uniform(0, self.height))
+        return (random.uniform(0, self.map.width), random.uniform(0, self.map.height))
 
 
     def nearest(self, nodes, p):
-        return min(nodes, key=lambda n: self.distance((n.x, n.y), p))
+        return min(nodes, key=lambda n: self.distance([n.x, n.y], p))
 
 
     def steer(self,from_p, to_p):
@@ -200,6 +197,8 @@ class RRT:
         path.reverse()
         return path, nodes
 
+
+### End Pathfinding with RRT* ###
     
 ### Pathfinding by discretisizing the map into a graph ### 
     
@@ -319,33 +318,3 @@ class GraphMap:
         
 ### End of pathfinding by discretisizing the map into a graph ###
 
-# -------------------------- RUN & VISUALIZE -------------------------
-# path, tree = rrt_star(START, GOAL, OBSTACLES)
-# path.append(GOAL)
-
-# fig, ax = plt.subplots(figsize=(6, 6))
-
-# # Plot obstacles
-# for (xmin, ymin, xmax, ymax) in OBSTACLES:
-#     rect = plt.Rectangle((xmin, ymin), xmax - xmin, ymax - ymin, alpha=0.3)
-#     ax.add_patch(rect)
-
-# # Plot RRT* tree
-# for node in tree:
-#     if node.parent is not None:
-#         ax.plot([node.x, node.parent.x], [node.y, node.parent.y], linewidth=0.5)
-
-# # Plot path if found
-# if path:
-#     xs, ys = zip(*path)
-#     ax.plot(xs, ys, linewidth=3)
-
-# # Plot start and goal
-# ax.scatter([START[0]], [START[1]])
-# ax.scatter([GOAL[0]], [GOAL[1]])
-
-# ax.set_xlim(0, WIDTH)
-# ax.set_ylim(0, HEIGHT)
-# ax.set_aspect('equal')
-# ax.set_title("RRT* Path Planning")
-# plt.show()
