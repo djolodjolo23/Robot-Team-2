@@ -7,8 +7,6 @@ from robomaster import conn
 from MyQR import myqr
 from PIL import Image
 import cv2
-from localization import distance_scan_script, plot
-from localization import monte_carlo
 from pathfinding import *
 import localizer
 import threading
@@ -201,30 +199,45 @@ class RobotManager:
         self.set_speed(50)
         if(angle > 0):
             self.move("rotate_right")
-            time.sleep(constant * angle) 
+            time.sleep(constant * angle)
             self.stop()
         else:
             self.move("rotate_left")
-            time.sleep(constant * -angle) 
+            time.sleep(constant * -angle)
             self.stop()
         self.set_speed(self.speed_buff)
 
-    def crazy_random_dance(self):
+    def crazy_random_dance(self, moves=50):
         self.speed_buff = self.current_speed
         self.set_speed(100)
 
-        moves = [
+        possible_moves = [
             "forward", "forward_left", "forward_right",
             "left", "right", "rotate_left", "rotate_right"
         ]
-        for _ in range(15):
-            move = random.choice(moves)
+        for _ in range(moves):
+            move = random.choice(possible_moves)
             self.move(move)
-            time.sleep(random.uniform(0.02, 0.08))
+            time.sleep(random.uniform(0.02, 0.25))
         self.stop()
 
         self.set_speed(self.speed_buff)
-
+    def wave(self):
+        ARM_X_RANGE = (100, 200)
+        ARM_Y_RANGE = (70, 150)
+        DEFAULT_ARM_X = 110
+        DEFAULT_ARM_Y = 100
+        for x in range(10):
+            self.move_arm(x=DEFAULT_ARM_X,y=ARM_Y_RANGE[0])
+            time.sleep(0.5)
+            self.move_arm(x=DEFAULT_ARM_X,y=ARM_Y_RANGE[1])
+            time.sleep(5)
+    def move_arm(self,x,y):
+        ARM_X_RANGE = (100, 200)
+        ARM_Y_RANGE = (70, 150)
+        x = max(ARM_X_RANGE[0], min(x, ARM_X_RANGE[1]))
+        y = max(ARM_Y_RANGE[0], min(y, ARM_Y_RANGE[1]))
+        self.ep_robot.robotic_arm.moveto(x=x,y=y)
     def move(self, direction):
         """Move the robot in a specified direction.
 
