@@ -96,9 +96,74 @@ def stop_robot():
     robot.stop()
     return jsonify({"message": "Robot stopped"}), 200
 
+@app.route('/rotate_right_given_angle')
+def rotate_right():
+    robot.move('rotate_right')
+    return jsonify({"message": "Robot rotated right"}), 200
+
+
+
 @app.route("/seats", methods=["GET"])
 def get_seats():
     json_string = json.dumps(map, default=lambda o: o.__dict__)
     return json_string, 200, {'Content-Type': 'application/json'}
+
+
+@app.route('/move_distance', methods=['POST'])
+def move_distance():
+    """
+    Endpoint to move the robot a specified distance in a given direction.
+    Expects JSON payload with 'direction' and 'distance'.
+    'distance' in cm 
+    'direction" options:
+        - "forward"
+        - "backward"
+        - "left"
+        - "right"
+        
+    example payload:
+    {
+        "direction": "forward",
+        "distance": 50
+    }
+    """
+    data = request.get_json()
+    direction = data.get("direction")
+    distance = data.get("distance")
+
+    if not direction or not isinstance(distance, (int, float)):
+        return jsonify({"error": "Invalid input. Provide 'direction' and 'distance'."}), 400
+
+    try:
+        robot.move_distance(direction, distance)
+        return jsonify({"message": f"Robot moved {distance} cm in {direction} direction."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/rotate_angle', methods=['POST'])
+def rotate_angle():
+    """
+    Endpoint to rotate the robot by a specified angle.
+    Expects JSON payload with 'angle'.
+        'angle' > 0 -> move right
+        'angle < 0 -> move left 
+        
+    example payload:
+    {
+        "angle": 90
+    }
+    """
+    data = request.get_json()
+    angle = data.get("angle")
+
+    if not isinstance(angle, (int, float)):
+        return jsonify({"error": "Invalid input. Provide 'angle' as a number."}), 400
+
+    try:
+        robot.rotate_angle(angle)
+        return jsonify({"message": f"Robot rotated by {angle} degrees."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
