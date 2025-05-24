@@ -286,6 +286,10 @@ class GraphMap:
         self.map = map
         
     def path_from_to(self, start, goal):
+        
+        # round start since nodes of the graph are all integer
+        start = (round(start[0]), round(start[1]))
+        
         start_index = self.coord_to_nodes[start]
         goal_index = self.coord_to_nodes[goal]
         
