@@ -1,7 +1,6 @@
 import time
 
 from robomaster import robot
-import robomaster
 from robomaster import conn
 from MyQR import myqr
 from PIL import Image
@@ -14,6 +13,8 @@ class RobotManager:
 
         self.ep_robot = robot.Robot()
         self.ep_robot.initialize(conn_type="sta", sn="3JKCK7E0030BFN")
+        #self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
+
         self.ep_chassis = self.ep_robot.chassis
         self.normal_speed = normal_speed
         self.sprint_speed = sprint_speed
