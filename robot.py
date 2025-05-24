@@ -52,22 +52,21 @@ class RobotManager:
         if not self.ep_robot:
             print("Robot not initialized.")
             return
-
-        dx, dy = instruction[0], instruction[1]
-        if dx == 0 and dy == 0:
-            target_angle = 0
-        else:
-            target_angle = -(math.degrees(math.atan2(dy, dx)) + 360) % 360
-            if target_angle > 180:
-                target_angle -= 360  # Make angle negative if greater than 180
-        self.rotate_angle(target_angle-self.current_angle)
-        if dx + dy >= 2:
-            self.move_distance("forward", 14.14 )
-        else:
-            self.move_distance("forward", 10)
         for instruction in path_instructions:
-            self.move_distance("forward",instruction[0] * 10)
-            self.move_distance("left", instruction[1] * 10)
+            dx, dy = instruction[0], instruction[1]
+            if dx == 0 and dy == 0:
+                target_angle = 0
+            else:
+                target_angle = -(math.degrees(math.atan2(dy, dx)) + 360) % 360
+                if target_angle > 180:
+                    target_angle -= 360  # Make angle negative if greater than 180
+            self.rotate_angle(target_angle-self.current_angle)
+            if dx + dy >= 2:
+                self.move_distance("forward", 14.14 )
+            else:
+                self.move_distance("forward", 10)
+
+
 
 
     def get_robot(self):
