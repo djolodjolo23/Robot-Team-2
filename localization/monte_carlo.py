@@ -112,7 +112,7 @@ class MonteCarloLocalization:
         self.num_particles = num_particles
         self.occupation_map = occ_map
             
-        self.init_particles(*initial_position, random=False)
+        self.init_particles(initial_position[0], initial_position[1], initial_position[2], random=False)
         
     def init_particles(self, x, y, rotation, random=True):
         for i in range(self.num_particles):

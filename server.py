@@ -9,6 +9,7 @@ from pathfinding import Map, Obstacle
 from robot import RobotManager
 import json
 from pathfinding import *
+import goto_position
 
 app = Flask(__name__)
 CORS(app, resources= {r"/*": {"origins": "*"}})
@@ -41,20 +42,20 @@ def receive_command():
     # goal_id = data[]
     # seat = map.seats[goal_id]
 
-    seat0 = robot.get_seats()[0]
-    seat_coords = (seat0.x, seat0.y)
 
-    start = (1,1)
 
     #path = graphMap.path_from_to(start, seat_coords)
 
     #path_instructions = graphMap.instructions_from_path(path)
 
     #map.plot_path(path)
-    path_instructions = [(1, 1), (1, -1), (1, 0), (0, -1)]
-    robot.resolve_path(path_instructions)
+    #path_instructions = [(1, 1), (1, -1), (1, 0), (0, -1)]
+    #robot.resolve_path(path_instructions)
 
-    print("Path instructions:", path_instructions)
+
+    goto = goto_position.GotoPosition(robot, start_position=(0, 0, 0), localization_interval=5)
+    goto.goto(19, 4)
+    #print("Path instructions:", path_instructions)
 
     #print("Path", path)
 

@@ -25,8 +25,8 @@ class RobotManager:
 
 
         self.ep_robot = robot.Robot()
-        #self.ep_robot.initialize(conn_type="ap", sn="3JKCK7E0030BFN")
-        self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
+        self.ep_robot.initialize(conn_type="sta", sn="3JKCK7E0030BFN")
+        #self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
 
         seat0 = Seat(0, 1, 2)
         # seat1 = Seat(1, 1, 1)
@@ -45,11 +45,12 @@ class RobotManager:
         self.speed_buff = self.current_speed
         self.running = True
         self.latest_frame = None
-        self.capture_thread = threading.Thread(target=self._capture_frames)
-        self.capture_thread.daemon = True
+        self.current_angle = 0
+        #self.capture_thread = threading.Thread(target=self._capture_frames)
+        #self.capture_thread.daemon = True
         self.lock = threading.Lock()
-        self.start_stream()
-        self.capture_thread.start()
+        #self.start_stream()
+       # self.capture_thread.start()
 
         print("Robot initialized.")
 
@@ -95,14 +96,11 @@ class RobotManager:
                 if target_angle > 180:
                     target_angle -= 360  # Make angle negative if greater than 180
             self.rotate_angle(target_angle-self.current_angle)
+            self.current_angle =  target_angle
             if dx + dy >= 2:
                 self.move_distance("forward", 14.14 )
             else:
                 self.move_distance("forward", 10)
-            self.delta_since_last_scan[0] += dx
-            self.delta_since_last_scan[1] += dy
-            self.delta_since_last_scan[2] += target_angle - self.current_angle
-
 
 
 
@@ -282,6 +280,7 @@ class RobotManager:
         self.ep_camera.start_video_stream(display=False)
     def read_camera(self):
         return self.ep_camera.read_cv2_image()
+
     def _capture_frames(self):
         while self.running:
             frame = self.ep_camera.read_cv2_image()
@@ -289,6 +288,7 @@ class RobotManager:
                 with self.lock:
                     self.latest_frame = frame
             time.sleep(0.01)  # ~30 fps
+
     def generate_frames(self):
         while True:
             with self.lock:
