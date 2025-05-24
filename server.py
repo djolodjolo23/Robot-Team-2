@@ -6,6 +6,8 @@ from robot import RobotManager
 app = Flask(__name__)
 
 robot = RobotManager()
+#robot.connect_to_wifi("Pixel_4585", "123456789")
+
 robot.initialize_robot()
 
 server_info = {
