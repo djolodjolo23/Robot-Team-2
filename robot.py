@@ -22,6 +22,7 @@ class RobotManager:
         self.sprint_speed = sprint_speed
         self.current_speed = normal_speed
         self.speed_buff = self.current_speed
+        self.current_angle = 0
         self.running = False
         print("Robot initialized.")
 
@@ -137,6 +138,7 @@ class RobotManager:
         """
         self.speed_buff = self.current_speed
         constant = 0.0135
+        self.current_angle += angle
         self.set_speed(50)
         if(angle > 0):
             self.move("rotate_right")
