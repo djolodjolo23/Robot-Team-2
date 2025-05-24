@@ -1,13 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from shapely.geometry import LineString, Polygon, Point
-import localization.plot as plot
-from localization.monte_carlo import Particle, OccupationMap, MonteCarloLocalization
+import plot as plot
+from monte_carlo import OccupationMap, MonteCarloLocalization
 
 num_particles = 50
 num_scan_points = 30
-        
+
+
+
 # Instantiate Localization
 obstacles = [
     [(0, 0), (10, 0), (10, 10), (0, 10)],  # Obstacle 1
