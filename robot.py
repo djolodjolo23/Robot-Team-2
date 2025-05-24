@@ -36,6 +36,17 @@ class RobotManager:
             self.ep_robot.play_sound(sound).wait_for_completed()
             print("Sound played.")
 
+    def resolve_path(self, path_instructions):
+        if not self.ep_robot:
+            print("Robot not initialized.")
+            return
+
+        # for each path_instruction in path instructios
+        for instruction in path_instructions:
+            self.move_distance("forward",instruction[0] * 10)
+            self.move_distance("left", instruction[1] * 10)
+
+
 
     def get_robot(self):
         return self.ep_robot
@@ -86,6 +97,23 @@ class RobotManager:
         self.speed_buff = self.current_speed
         self.set_speed(50)
         self.move(direction)
+        if direction == "forward":
+            if dist < 0:
+                dist = -dist
+                direction = "backward"
+        if direction == "backward":
+            if dist < 0:
+                dist = -dist
+                direction = "forward"
+        if direction == "left":
+            if dist < 0:
+                dist = -dist
+                direction = "right"
+        if direction == "right":
+            if dist < 0:
+                dist = -dist
+                direction = "left"
+
         if direction == "backward":
             constant = 0.0355
         elif direction == "right":

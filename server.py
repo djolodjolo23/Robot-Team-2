@@ -13,12 +13,12 @@ CORS(app, resources= {r"/*": {"origins": "*"}})
 robot = RobotManager()
 robot.start_stream()
 
-obstacle0 = Obstacle(2, 2, 2, 2)
-obstacle1= Obstacle(4, 4, 2, 2)
+obstacle0 = Obstacle(3, 0, 5, 5)
+obstacle1= Obstacle(8, 5, 6, 6)
 
-seat0 = Seat(0, 9, 9)
+seat0 = Seat(0, 23, 14)
 seat1 = Seat(1, 1, 1)
-map = Map(10, 10, [obstacle0, obstacle1], [seat0, seat1])
+map = Map(24, 20, [obstacle0, obstacle1], [seat0, seat1])
 
 graphMap = GraphMap(map)
 
@@ -56,13 +56,15 @@ def receive_command():
 
     path_instructions = graphMap.instructions_from_path(path)
 
+    robot.resolve_path(path_instructions)
+
     print("Path instructions:", path_instructions)
 
     print("Path", path)
 
-    json_dump = json.dumps(path_instructions, indent=4)
+    #json_dump = json.dumps(path_instructions, indent=4)
 
-    return json_dump
+    return "test"
 
 @app.route("/sound", methods=["POST"])
 def play_sound():
