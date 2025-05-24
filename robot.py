@@ -25,8 +25,10 @@ class RobotManager:
 
 
         self.ep_robot = robot.Robot()
-        self.ep_robot.initialize(conn_type="sta", sn="3JKCK7E0030BFN")
+        # self.ep_robot.initialize(conn_type="sta", sn="3JKCK7E0030BFN")
         #self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
+        self.ep_robot.initialize(conn_type="ap", sn="3JKCK7E0030BFN")
+        # self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
 
         seat0 = Seat(0, 1, 2)
         # seat1 = Seat(1, 1, 1)
@@ -249,6 +251,8 @@ class RobotManager:
                 - "forward"
                 - "forward_left"
                 - "forward_right"
+                - "backward_left"
+                - "backward_right"
                 - "left"
                 - "right"
                 - "rotate_left"
@@ -266,6 +270,10 @@ class RobotManager:
             self.ep_chassis.drive_wheels(w1=self.current_speed, w2=0, w3=self.current_speed, w4=0)
         elif direction == "forward_right":
             self.ep_chassis.drive_wheels(w1=0, w2=self.current_speed, w3=0, w4=self.current_speed)
+        elif direction == "backward_left":
+            self.ep_chassis.drive_wheels(w1=-self.current_speed, w2=0, w3=-self.current_speed, w4=0)
+        elif direction == "backward_right":
+            self.ep_chassis.drive_wheels(w1=0, w2=-self.current_speed, w3=0, w4=-self.current_speed)
         elif direction == "left":
             self.ep_chassis.drive_wheels(w1=self.current_speed, w2=-self.current_speed, w3=self.current_speed, w4=-self.current_speed)
         elif direction == "right":
@@ -276,6 +284,43 @@ class RobotManager:
     def stop(self):
         """Stop the robot."""
         self.ep_chassis.drive_wheels(w1=0, w2=0, w3=0, w4=0)
+        
+    #ARM MOVEMENT
+
+    def move_arm(self, direction, distance):
+        """Move the robotic arm in a specified direction.
+
+        Args:
+            direction (str): Direction to move. Options are:
+                - "forward" (x+)
+                - "backward" (x-)
+                - "up" (y+)
+                - "down" (y-)
+            distance (int): Distance to move in millimeters.
+        """
+        if not self.ep_robot:
+            print("Robot not initialized.")
+            return
+
+        if direction == "forward":
+            self.ep_robot.robotic_arm.move(x=distance, y=0).wait_for_completed()
+        elif direction == "backward":
+            self.ep_robot.robotic_arm.move(x=-distance, y=0).wait_for_completed()
+        elif direction == "up":
+            self.ep_robot.robotic_arm.move(x=0, y=distance).wait_for_completed()
+        elif direction == "down":
+            self.ep_robot.robotic_arm.move(x=0, y=-distance).wait_for_completed()
+        else:
+            print(f"Invalid direction: {direction}")
+
+    def stop_arm(self):
+        """Stop the robotic arm."""
+        if not self.ep_robot:
+            print("Robot not initialized.")
+            return
+
+        self.ep_robot.robotic_arm.unsub_position()
+        print("Robotic arm stopped.")
 
     def shutdown(self):
         """Shutdown the robot and close the connection."""
@@ -345,4 +390,62 @@ class RobotManager:
     #             time.sleep(0.1)
     #     finally:
     #         self.shutdown()
+
+    def nice_dance(self):
+        """Make the robot perform a dynamic and interesting dance routine."""
+        if not self.ep_robot:
+            print("Robot not initialized.")
+            return
+
+        self.speed_buff = self.current_speed
+        self.set_speed(70)
+
+        try:
+            # Dance sequence
+            for _ in range(3):  # Repeat the sequence 3 times
+                # Forward-left while moving the arm up
+                self.move("forward_left")
+                self.move_arm("up", 50)
+                time.sleep(1)
+
+                # Forward-right while moving the arm down
+                self.move("forward_right")
+                self.move_arm("down", 50)
+                time.sleep(1)
+
+                # Backward-left while moving the arm forward
+                self.move("backward_left")
+                self.move_arm("forward", 50)
+                time.sleep(1)
+
+                # Backward-right while moving the arm backward
+                self.move("backward_right")
+                self.move_arm("backward", 50)
+                time.sleep(1)
+
+                # Spin left while moving the arm up and down
+                self.move("rotate_left")
+                self.move_arm("up", 50)
+                time.sleep(0.7)
+                self.move_arm("down", 50)
+                time.sleep(0.7)
+
+                # Spin right while wiggling the arm
+                self.move("rotate_right")
+                self.move_arm("up", 30)
+                time.sleep(0.3)
+                self.move_arm("down", 30)
+                time.sleep(0.3)
+
+            # Final movement to return to the starting position
+            self.move("backward_right")
+            time.sleep(1)
+            self.move("backward_left")
+            time.sleep(1)
+
+        finally:
+            # Reset speed and stop the robot
+            self.set_speed(self.speed_buff)
+            self.stop()
+            print("Dance completed!")
 
