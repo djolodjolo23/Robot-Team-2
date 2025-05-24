@@ -72,6 +72,11 @@ class RobotManager:
             self.ep_robot.play_sound(sound).wait_for_completed()
             print("Sound played.")
 
+    def play_audio(self, audio_file):
+        if self.ep_robot:
+            self.ep_robot.play_audio(audio_file).wait_for_completed()
+            print(f"Audio {audio_file} played.")
+
     def resolve_path_crabwalk(self, path_instructions):
         if not self.ep_robot:
             print("Robot not initialized.")
