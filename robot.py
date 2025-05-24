@@ -77,20 +77,24 @@ class RobotManager:
             dist (int): distance in cm;
             direction (str): Direction to move. Options are:
                 - "forward"
-                - "forward_left"
-                - "forward_right"
+                - "backward"
                 - "left"
                 - "right"
         """
         self.speed_buff = self.current_speed
         self.set_speed(50)
         self.move(direction)
-        time.sleep(0.05 * dist) #TODO change the sleep value
+        if direction == "backward":
+            constant = 0.0355
+        elif direction == "right":
+            constant = 0.0376
+        elif direction == "left":
+            constant = 0.057
+        else:
+            constant = 0.04
+        time.sleep(constant * dist) #TODO change the sleep value
         self.stop()
         self.set_speed(self.speed_buff)
-
-
-
 
 
     def rotate_angle(self, angle):
@@ -102,16 +106,19 @@ class RobotManager:
                 angle < 0 -> turn left
         """
         self.speed_buff = self.current_speed
+        constant = 0.0135
         self.set_speed(50)
         if(angle > 0):
             self.move("rotate_right")
-            time.sleep(0.05 * angle) #TODO change the sleep value
+            time.sleep(constant * angle) 
             self.stop()
         else:
             self.move("rotate_left")
-            time.sleep(0.05 * angle) #TODO change the sleep value
+            time.sleep(constant * -angle) 
             self.stop()
         self.set_speed(self.speed_buff)
+        
+               
 
     def move(self, direction):
         """Move the robot in a specified direction.
@@ -130,17 +137,17 @@ class RobotManager:
             self.ep_chassis.drive_wheels(w1=self.current_speed, w2=self.current_speed, w3=self.current_speed, w4=self.current_speed)
         elif direction == "backward":
             self.ep_chassis.drive_wheels(w1=-self.current_speed, w2=-self.current_speed, w3=-self.current_speed, w4=-self.current_speed)
-        elif direction == "left":
+        elif direction == "rotate_left":
             self.ep_chassis.drive_wheels(w1=self.current_speed, w2=-self.current_speed, w3=-self.current_speed, w4=self.current_speed)
-        elif direction == "right":
+        elif direction == "rotate_right":
             self.ep_chassis.drive_wheels(w1=-self.current_speed, w2=self.current_speed, w3=self.current_speed, w4=-self.current_speed)
         elif direction == "forward_left":
             self.ep_chassis.drive_wheels(w1=self.current_speed, w2=0, w3=self.current_speed, w4=0)
         elif direction == "forward_right":
             self.ep_chassis.drive_wheels(w1=0, w2=self.current_speed, w3=0, w4=self.current_speed)
-        elif direction == "rotate_left":
+        elif direction == "left":
             self.ep_chassis.drive_wheels(w1=self.current_speed, w2=-self.current_speed, w3=self.current_speed, w4=-self.current_speed)
-        elif direction == "rotate_right":
+        elif direction == "right":
             self.ep_chassis.drive_wheels(w1=-self.current_speed, w2=self.current_speed, w3=-self.current_speed, w4=self.current_speed)
         else:
             self.stop()
