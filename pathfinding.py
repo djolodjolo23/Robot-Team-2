@@ -73,6 +73,15 @@ class Map:
         ax.set_ylabel("y")
         ax.set_title("Workspace with Obstacles, Start, and Goal")
         plt.legend()
+    
+    def to_json(self):
+        """ Convert the map to a JSON serializable format """
+        return {
+            "width": self.width,
+            "height": self.height,
+            "obstacles": [{"x": o.x, "y": o.y, "width": o.width, "height": o.height} for o in self.obstacles],
+            "seats": [{"id": s.id, "x": s.x, "y": s.y} for s in self.seats]
+        }
         
 class Node:
     __slots__ = ("x", "y", "parent", "cost")
