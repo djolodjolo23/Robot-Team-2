@@ -1,14 +1,13 @@
 import time
 
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify #Response
 from robomaster import robot
 from robot import RobotManager
-from camera_stream import generate_frames
+#from camera_stream import generate_frames
 from pathfinding import *
 app = Flask(__name__)
 
 robot = RobotManager()
-robot.initialize_robot()
 
 obstacle0 = Obstacle(10, 10, 20, 20)
 obstacle1= Obstacle(40, 40, 20, 20)
@@ -52,12 +51,12 @@ def play_sound():
         return jsonify({"error": "No sound ID provided."}), 400
 
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
+# @app.route('/video_feed')
+# def video_feed():
+#     return Response(generate_frames(),
+#                     mimetype='multipart/x-mixed-replace; boundary=frame')
+#
+#
 
 # MOVEMENT
 @app.route('/left')

@@ -11,20 +11,17 @@ QRCODE_NAME = "qrcode.png"
 
 class RobotManager:
     def __init__(self,  normal_speed=50, sprint_speed=100):
-        self.ep_robot = None
+
+        self.ep_robot = robot.Robot()
+        self.ep_robot.initialize(conn_type="sta", sn="3JKCK7E0030BFN")
         self.ep_chassis = self.ep_robot.chassis
         self.normal_speed = normal_speed
         self.sprint_speed = sprint_speed
         self.current_speed = normal_speed
         self.speed_buff = self.current_speed
         self.running = False
-        self.ep_robot.play_sound(robot.SOUND_ID_1F).wait_for_completed()
-
-    def initialize_robot(self):
-        self.ep_robot = robot.Robot()
-        self.ep_robot.initialize(conn_type="sta", sn="3JKCK7E0030BFN")
         print("Robot initialized.")
-        
+
 
     def close_robot(self):
         if self.ep_robot:
