@@ -435,7 +435,7 @@ class RobotManager:
         time.sleep(wackeltime)
         
         self.move("rotate_left")
-        self.move_arm("down", 50)
+        self.move_arm("up", 50)
         time.sleep(wackeltime*5)
         # self.stop_audio()
         self.set_speed(self.speed_buff)
