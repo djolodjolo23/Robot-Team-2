@@ -449,36 +449,37 @@ class RobotManager:
 
         self.speed_buff = self.current_speed
         self.set_speed(70)
-        self.play_audio("disco.wav")
+        self.play_audio("disco2.wav")
         try:
             # Dance sequence
-            for _ in range(3):  # Repeat the sequence 3 times
+            for _ in range(2):  # Repeat the sequence 3 times
                 # Forward-left while moving the arm up
+                disco_time = 0.3
                 self.move("forward_left")
                 self.move_arm("up", 50)
-                time.sleep(1)
+                time.sleep(disco_time)
             
                 # Forward-right while moving the arm down
                 self.move("forward_right")
                 self.move_arm("down", 50)
-                time.sleep(1)
+                time.sleep(disco_time)
 
                 # Backward-left while moving the arm forward
                 self.move("backward_left")
                 self.move_arm("forward", 50)
-                time.sleep(1)
+                time.sleep(disco_time)
 
                 # Backward-right while moving the arm backward
                 self.move("backward_right")
                 self.move_arm("backward", 50)
-                time.sleep(1)
+                time.sleep(disco_time)
 
                 # Spin left while moving the arm up and down
                 self.move("rotate_left")
                 self.move_arm("up", 50)
-                time.sleep(0.7)
+                time.sleep(disco_time)
                 self.move_arm("down", 50)
-                time.sleep(0.7)
+                time.sleep(disco_time)
 
                 # Spin right while wiggling the arm
                 self.move("rotate_right")
@@ -495,8 +496,8 @@ class RobotManager:
 
         finally:
             # Reset speed and stop the robot
-            self.stop_audio()
-            self.set_speed(self.speed_buff)
             self.stop()
+            # self.stop_audio()
+            self.set_speed(self.speed_buff)
             print("Dance completed!")
 
