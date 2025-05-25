@@ -1,42 +1,39 @@
-import math
-import time
 
 from robomaster import robot
-import robomaster
-from robomaster import conn
-from MyQR import myqr
-from PIL import Image
 import cv2
 from pathfinding import *
-import localizer
 import threading
 import time
 import random
-QRCODE_NAME = "qrcode.png"
+import os
+
+def get_random_wav_from_directory(directory_path):
+    if not os.path.isdir(directory_path):
+        print(f"Error: Directory '{directory_path}' not found.")
+        return None
+    try:
+        all_files = os.listdir(directory_path)
+        wav_files = [f for f in all_files if f.lower().endswith(".wav")]
+    except OSError as e:
+        print(f"Error accessing directory {directory_path}: {e}")
+        return None
+    if not wav_files:
+        print(f"Warning: No .wav files found in directory '{directory_path}'.")
+        return None
+    selected_file = random.choice(wav_files)
+    return os.path.join(directory_path, selected_file)
 
 
 class RobotManager:
     def __init__(self,  normal_speed=50, sprint_speed=100):
-
-
-        #fig, ax = plt.subplots(figsize=(6, 6))
-        #plot.cartesian_plot_scan_results(10, 10, 0, scan, ax=ax, color='green')
-        #occ.plot(ax)
-
-
         self.ep_robot = robot.Robot()
-        # self.ep_robot.initialize(conn_type="sta", sn="3JKCK7E0030BFN")
         #self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
-        self.ep_robot.initialize(conn_type="ap", sn="3JKCK6U0030AT6")
-        # self.ep_robot.initialize(conn_type="sta", sn="3JKCK6U0030AT6")
+        self.ep_robot.initialize(conn_type="sta", sn="3JKCK7E0030BFN")
 
         seat0 = Seat(0, 1, 2)
-        # seat1 = Seat(1, 1, 1)
-
+        seat1 = Seat(1, 1, 1)
         o1 = Obstacle(10, 0, 4, 4)
         map = Map(22, 14, [o1], [])
-
-        graphMap = GraphMap(map)
 
         self.map = map
         self.ep_camera = self.ep_robot.camera
@@ -48,11 +45,11 @@ class RobotManager:
         self.running = True
         self.latest_frame = None
         self.current_angle = 0
-        self.capture_thread = threading.Thread(target=self._capture_frames)
-        self.capture_thread.daemon = True
-        self.lock = threading.Lock()
+        #self.capture_thread = threading.Thread(target=self._capture_frames)
+        #self.capture_thread.daemon = True
+        #self.lock = threading.Lock()
         self.start_stream()
-        self.capture_thread.start()
+        #self.capture_thread.start()
 
         print("Robot initialized.")
 
@@ -113,20 +110,6 @@ class RobotManager:
 
     def get_robot(self):
         return self.ep_robot
-
-    def connect_to_wifi(self, ssid, password):
-        if self.ep_robot:
-            helper = conn.ConnectionHelper()
-            info = helper.build_qrcode_string(ssid=ssid, password=password)
-            myqr.run(words=info)
-            time.sleep(1)
-            img = Image.open(QRCODE_NAME)
-            img.show()
-            if helper.wait_for_connection():
-                print("Connected to WiFi!")
-            else:
-                print("Failed to connect to WiFi!")
-
 
 
     #MOVEMENT
@@ -227,22 +210,19 @@ class RobotManager:
         self.stop()
 
         self.set_speed(self.speed_buff)
+
+
     def wave(self):
-        ARM_X_RANGE = (100, 200)
-        ARM_Y_RANGE = (70, 150)
-        DEFAULT_ARM_X = 110
-        DEFAULT_ARM_Y = 100
-        for x in range(10):
-            self.move_arm(x=DEFAULT_ARM_X,y=ARM_Y_RANGE[0])
-            time.sleep(0.5)
-            self.move_arm(x=DEFAULT_ARM_X,y=ARM_Y_RANGE[1])
-            time.sleep(5)
-    def move_arm(self,x,y):
-        ARM_X_RANGE = (100, 200)
-        ARM_Y_RANGE = (70, 150)
-        x = max(ARM_X_RANGE[0], min(x, ARM_X_RANGE[1]))
-        y = max(ARM_Y_RANGE[0], min(y, ARM_Y_RANGE[1]))
-        self.ep_robot.robotic_arm.moveto(x=x,y=y)
+        self.play_audio("hello.wav")
+        for x in range(2):
+            if x == 1:
+                audio_file_to_play = get_random_wav_from_directory("compliment_audio_greetings")
+                self.play_audio(audio_file_to_play)
+            self.move_arm("up", 70)
+            #time.sleep(0.5)
+            self.move_arm("down", 70)
+            #time.sleep(0.5)
+
     def move(self, direction):
         """Move the robot in a specified direction.
 
@@ -284,7 +264,7 @@ class RobotManager:
     def stop(self):
         """Stop the robot."""
         self.ep_chassis.drive_wheels(w1=0, w2=0, w3=0, w4=0)
-
+        
     #ARM MOVEMENT
 
     def move_arm(self, direction, distance):
@@ -326,6 +306,7 @@ class RobotManager:
         """Shutdown the robot and close the connection."""
         self.stop()
         self.ep_robot.close()
+
     def start_stream(self):
         self.ep_camera.start_video_stream(display=False)
     def read_camera(self):
@@ -341,11 +322,12 @@ class RobotManager:
 
     def generate_frames(self):
         while True:
-            with self.lock:
-                frame = self.latest_frame
-            if frame is None:
-                time.sleep(0.1)
-                continue
+            #with self.lock:
+            #frame = self.latest_frame
+            #if frame is None:
+            frame = self.read_camera()
+            #time.sleep(0.1)
+            #continue
             ret, buffer = cv2.imencode('.jpg', frame)
             if not ret:
                 time.sleep(0.1)
@@ -397,9 +379,9 @@ class RobotManager:
         if self.ep_robot:
             self.ep_robot.stop_audio()  # Replace with the actual method from your SDK
             print("Audio stopped.")
-
-
-
+            
+            
+            
     def wackel_dance(self):
         if not self.ep_robot:
             print("Robot not initialized.")
@@ -408,12 +390,12 @@ class RobotManager:
         self.speed_buff = self.current_speed
         self.set_speed(100)
         self.play_audio("wackelkontakt.wav")
-
+        
         wackeltime = 0.05
         self.move("rotate_left")
         self.move_arm("up", 50)
         time.sleep(wackeltime)
-
+        
 
         self.move("rotate_right")
         self.move_arm("down", 50)
@@ -422,12 +404,12 @@ class RobotManager:
         self.move("rotate_left")
         self.move_arm("up", 50)
         time.sleep(wackeltime)
-
+        
 
         self.move("rotate_right")
         self.move_arm("down", 50)
         time.sleep(wackeltime*50)
-
+        
         self.move("rotate_left")
         self.move_arm("up", 50)
         time.sleep(wackeltime)
@@ -435,7 +417,7 @@ class RobotManager:
         self.move("rotate_right")
         self.move_arm("down", 50)
         time.sleep(wackeltime)
-
+        
         self.move("rotate_left")
         self.move_arm("up", 50)
         time.sleep(wackeltime*5)
@@ -443,8 +425,8 @@ class RobotManager:
         self.set_speed(self.speed_buff)
         self.stop()
         print("Dance completed!")
-
-
+    
+            
     def disco_dance(self):
         if not self.ep_robot:
             print("Robot not initialized.")

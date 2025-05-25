@@ -1,20 +1,14 @@
-import time
 
 from flask import Flask, request, jsonify,Response
 from flask_cors import CORS
-from robomaster import robot
-from localization import distance_scan_script, plot
-from localization import monte_carlo
-from pathfinding import Map, Obstacle
+#from robomaster import robot
 from robot import RobotManager
-import json
-from pathfinding import *
-
+import goto_position
+import generate_audio
 app = Flask(__name__)
 CORS(app, resources= {r"/*": {"origins": "*"}})
 
 robot = RobotManager()
-robot.start_stream()
 
 
 server_info = {
@@ -33,28 +27,23 @@ def home():
 def status():
     return jsonify(server_info), 200
 
-@app.route("/send", methods=["GET"])
+@app.route("/move", methods=["GET"])
 def receive_command():
     # data = request.get_json()
     # if not data or 'command' not in data:
     #     return jsonify({"error": "Invalid command format."}), 400
     # goal_id = data[]
     # seat = map.seats[goal_id]
-
-    seat0 = robot.get_seats()[0]
-    seat_coords = (seat0.x, seat0.y)
-
-    start = (1,1)
-
     #path = graphMap.path_from_to(start, seat_coords)
-
     #path_instructions = graphMap.instructions_from_path(path)
-
     #map.plot_path(path)
-    path_instructions = [(1, 1), (1, -1), (1, 0), (0, -1)]
-    robot.resolve_path(path_instructions)
+    #path_instructions = [(1, 1), (1, -1), (1, 0), (0, -1)]
+    #robot.resolve_path(path_instructions)
 
-    print("Path instructions:", path_instructions)
+
+    goto = goto_position.GotoPosition(robot, start_position=(0, 0, 0), localization_interval=5)
+    goto.goto(19, 4)
+    #print("Path instructions:", path_instructions)
 
     #print("Path", path)
 
@@ -62,24 +51,34 @@ def receive_command():
 
     return "test"
 
-@app.route("/sound", methods=["POST"])
-def play_sound():
-   # data = request.get_json()
-    #sound_id = data.get("sound_id")
-    sound_id = 1
-    if sound_id:
-        #.play_sound(sound_id).wait_for_completed()
-        robot.play_sound(sound_id).wait_for_completed()
-        return jsonify({"message": f"Sound {sound_id} played successfully."}), 200
-    else:
-        return jsonify({"error": "No sound ID provided."}), 400
+
 
 
 @app.route('/video_feed')
 def video_feed():
+    print("Video feed requested")
     return Response(robot.generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/play_audio', methods=['GET'])
+def play_audio():
+    """
+    Endpoint to play a specific audio file.
+    Expects a query parameter 'file' with the audio file name.
+    """
+    robot.play_audio()
+    return jsonify({"message": "Audio playback started"}), 200
+
+@app.route('/say', methods=['POST'])
+def say_something():
+    data = request.get_json()
+    if not data or 'text' not in data:
+        return jsonify({"error": "Invalid input. Provide 'text' to say."}), 400
+    text = data['text']
+    generate_audio.text_to_wav(text, "output.wav", target_sample_rate=48000)
+    print(f"Robot will say: {text}")
+    robot.play_audio("output.wav")
+    return jsonify({"message": f"Robot says: {text}"}), 200
 
 
 # MOVEMENT
@@ -103,6 +102,13 @@ def stop_audio():
     robot.stop_audio()
     robot.stop()
     return jsonify({"message": "Robot stops music"}), 200
+
+@app.route('/stop_dance')
+def stop_dance():
+    robot.set_speed(robot.speed_buff)
+    robot.stop()
+    return jsonify({"message": "Robot stops dancing"}), 200
+
 @app.route('/right')
 def move_right():
     robot.move('right')
@@ -132,21 +138,19 @@ def rotate_right():
 def stop_robot():
     robot.stop()
     return jsonify({"message": "Robot stopped"}), 200
-@app.route('/stop_dance')
-def stop_dance():
-    robot.stop_audio()
-    robot.set_speed(robot.speed_buff)
-    robot.stop()
-    return jsonify({"message":"Dance stopped"},200)
+
 @app.route('/spin')
 def spin_robot():
-    robot.rotate_angle(720)
+    robot.rotate_angle(720) #demo
     return jsonify({"message": "Robot stopped"}), 200
 # @app.route('/rotate_right_given_angle')
 # def rotate_right():
 #     robot.move('rotate_right')
 #     return jsonify({"message": "Robot rotated right"}), 200
-
+@app.route('/wave')
+def make_robot_wave():
+    robot.wave()
+    return 'Wave',200
 
 
 @app.route("/seats", methods=["GET"])
