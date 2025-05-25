@@ -108,6 +108,10 @@ def stop_dance():
     robot.set_speed(robot.speed_buff)
     robot.stop()
     return jsonify({"message": "Robot stops dancing"}), 200
+@app.route('/left')
+def move_left():
+    robot.move('left')
+    return jsonify({"message": "Robot moved left"}), 200
 
 @app.route('/right')
 def move_right():

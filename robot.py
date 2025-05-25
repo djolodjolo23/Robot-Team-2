@@ -1,4 +1,5 @@
 
+import keyboard
 from robomaster import robot
 import cv2
 from pathfinding import *
@@ -161,13 +162,19 @@ class RobotManager:
                 direction = "left"
 
         if direction == "backward":
-            constant = 0.0355
+            constant = 0.0367 #10cm
+            # constant = 0.0355 #100cm
         elif direction == "right":
-            constant = 0.0376
+            constant = 0.041 #10cm
+            
+            # constant = 0.0376 #100cm
         elif direction == "left":
-            constant = 0.057
+            constant = 0.04 #10cm
+            
+            # constant = 0.057 #100cm
         else:
-            constant = 0.04
+            constant = 0.035 #10cm
+            # constant = 0.04 #100cm
         time.sleep(constant * dist) #TODO change the sleep value
         self.stop()
         self.set_speed(self.speed_buff)
@@ -365,15 +372,15 @@ class RobotManager:
     #                 self.move("left")
     #             else:
     #                 self.stop()
+    #         # Quit the program
+    #         if keyboard.is_pressed('q'):
+    #             print("Exiting...")
+    #             self.running = False
 
-    #             # Quit the program
-    #             if keyboard.is_pressed('q'):
-    #                 print("Exiting...")
-    #                 self.running = False
-
-    #             time.sleep(0.1)
-    #     finally:
-    #         self.shutdown()
+    #         time.sleep(0.1)
+    # finally:
+    #     self.shutdown()
+    
     def stop_audio(self):
         """Stop the currently playing audio."""
         if self.ep_robot:
@@ -391,7 +398,11 @@ class RobotManager:
         self.set_speed(100)
         self.play_audio("wackelkontakt.wav")
         
-        wackeltime = 0.05
+        wackeltime = 0.04
+        # self.move("rotate_right")
+        # self.move_arm("down", 100)
+        # time.sleep(wackeltime)
+
         self.move("rotate_left")
         self.move_arm("up", 50)
         time.sleep(wackeltime)
@@ -403,7 +414,7 @@ class RobotManager:
 
         self.move("rotate_left")
         self.move_arm("up", 50)
-        time.sleep(wackeltime)
+        time.sleep(wackeltime*5)
         
 
         self.move("rotate_right")
@@ -421,6 +432,10 @@ class RobotManager:
         self.move("rotate_left")
         self.move_arm("up", 50)
         time.sleep(wackeltime*5)
+        
+        self.move("rotate_right")
+        self.move_arm("down", 50)
+        time.sleep(wackeltime*10) 
         # self.stop_audio()
         self.set_speed(self.speed_buff)
         self.stop()
@@ -442,7 +457,7 @@ class RobotManager:
                 self.move("forward_left")
                 self.move_arm("up", 50)
                 time.sleep(1)
-
+            
                 # Forward-right while moving the arm down
                 self.move("forward_right")
                 self.move_arm("down", 50)
